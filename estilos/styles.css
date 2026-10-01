@@ -1,0 +1,701 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+    margin: auto;
+    display: block;
+}
+
+body {
+    font-size: 2rem;
+    font-weight: 550;
+    background-color: #FDFCED;
+    color: #2F343A;
+    font-family: "Patrick Hand SC", sans-serif;
+}
+
+#logo {
+    max-width: 100px;
+}
+
+main {
+    max-width: 1280px;
+    margin: auto;
+}
+
+
+.navbar {
+    background-color: #FF6D00;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.navbar .navbar-collapse {
+    justify-content: center;
+}
+
+.navbar .navbar-nav {
+    gap: 0.5rem;
+}
+
+.navbar .nav-link {
+    color: #FDFCED;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 2.5rem;
+    transition: 0.3s;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    color: #75C3FF;
+}
+
+
+/* FILTROS */
+
+.navbar .dropdown-menu {
+    background-color: white;
+    border: 2px solid #75C3FF;
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+.navbar .dropdown-item {
+    color: #2F343A;
+    background-color: white;
+    font-family: inherit;
+    font-size: 1.4rem;
+    border-radius: 7px;
+    padding: 0.6rem 1rem;
+}
+
+.navbar .dropdown-item:hover {
+    background-color: #75C3FF;
+    color: white;
+}
+
+
+/* =========================
+   INTRODUCCIÓN
+========================= */
+
+.inicio {
+    padding-top: 5rem !important;
+    padding-bottom: 5rem !important;
+    text-align: center;
+}
+
+.inicio h2 {
+    color: #FF6D00;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.inicio p {
+    max-width: 800px;
+    margin: 0.8rem auto;
+}
+
+
+
+
+#vista-catalogo h2 {
+    text-align: center;
+    color: #FF6D00;
+    font-size: 3.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+#catalogo {
+    margin-top: 2rem;
+}
+
+#catalogo li {
+    display: flex;
+}
+
+.tarjeta-receta {
+    width: 100%;
+    min-height: 250px;
+    background-color: white;
+    border: 3px solid #75C3FF;
+    border-radius: 20px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 7px 7px 0 #FF6D00;
+    transition: 0.3s;
+}
+
+.tarjeta-receta:hover {
+    transform: translateY(-6px);
+    box-shadow: 10px 10px 0 #FF6D00;
+}
+
+.tarjeta-receta h3 {
+    color: #FF6D00;
+    font-size: 3rem;
+    text-align: center;
+    margin: auto;
+}
+
+
+
+.tarjeta-receta footer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 1.5rem 0 0;
+}
+
+.tarjeta-receta button {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-ver-receta {
+    background-color: #75C3FF;
+    color: white;
+    border: 2px solid #75C3FF;
+}
+
+.btn-ver-receta:hover {
+    background-color: transparent;
+    color: #75C3FF;
+}
+
+.btn-borrar-receta {
+    background-color: #FF6D00;
+    color: white;
+    border: 2px solid #FF6D00;
+}
+
+.btn-borrar-receta:hover {
+    background-color: transparent;
+    color: #FF6D00;
+}
+
+
+#btn-nueva-receta {
+    display: block;
+    margin: 0 auto 2rem;
+    font-size: 1.6rem;
+    padding: 0.8rem 1.8rem;
+    border-radius: 10px;
+    background-color: #75C3FF;
+    border-color: #75C3FF;
+    color: white;
+    transition: 0.3s;
+}
+
+#btn-nueva-receta:hover {
+    background-color: transparent;
+    color: #75C3FF;
+    border-color: #75C3FF;
+}
+
+
+#vista-detalle {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+#detalle-contenido {
+    background-color: white;
+    border: 3px solid #75C3FF;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 8px 8px 0 #FF6D00;
+}
+
+#detalle-contenido h2 {
+    color: #FF6D00;
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#detalle-contenido h3 {
+    color: #FF6D00;
+    font-size: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+
+
+#detalle-contenido label {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#detalle-contenido input {
+    font-size: 1.6rem;
+    padding: 0.8rem 1rem;
+}
+
+#detalle-contenido select {
+    font-size: 1.5rem;
+    padding: 0.8rem 1rem;
+    border: 2px solid #75C3FF;
+    border-radius: 8px;
+    background-color: white;
+    color: #2F343A;
+}
+
+
+/* INGREDIENTES */
+
+.btn-agregar-ingrediente {
+    font-size: 1.5rem;
+    padding: 0.7rem 1.3rem;
+    border: 2px solid #75C3FF;
+    color: #75C3FF;
+    margin-top: 0.5rem;
+}
+
+.btn-agregar-ingrediente:hover {
+    background-color: #75C3FF;
+    color: white;
+}
+
+
+.btn-agregar-paso {
+    background-color: #75C3FF;
+    border: 2px solid #75C3FF;
+    color: white;
+    font-size: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-agregar-paso:hover {
+    background-color: transparent;
+    color: #75C3FF;
+}
+
+.btn-editar-receta,
+.btn-guardar-receta {
+    background-color: #FF6D00;
+    border: 2px solid #FF6D00;
+    color: white;
+    font-size: 1.6rem;
+    padding: 0.8rem 1.5rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-editar-receta:hover,
+.btn-guardar-receta:hover {
+    background-color: transparent;
+    color: #FF6D00;
+}
+
+
+#btn-volver-catalogo {
+    background-color: #75C3FF;
+    border-color: #75C3FF;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+#btn-volver-catalogo:hover {
+    background-color: transparent;
+    color: #75C3FF;
+}
+
+
+
+#lista-pasos {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+}
+
+.tarjeta-paso {
+    background-color: #FAFAFA;
+    border: 2px solid #75C3FF;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: 0.3s;
+}
+
+.tarjeta-paso:hover {
+    transform: translateY(-4px);
+    box-shadow: 5px 5px 0 #75C3FF;
+}
+
+.nombre-tarea {
+    color: #FF6D00;
+    margin-bottom: 0.7rem;
+}
+
+.tarjeta-paso p {
+    font-size: 1.6rem;
+    line-height: 1.5;
+}
+
+
+
+.tarjeta-paso footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.btn-editar-tarea,
+.btn-eliminar-tarea {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-editar-tarea {
+    background-color: #75C3FF;
+    color: white;
+    border: 2px solid #75C3FF;
+}
+
+.btn-editar-tarea:hover {
+    background-color: transparent;
+    color: #75C3FF;
+}
+
+.btn-eliminar-tarea {
+    background-color: #FF6D00;
+    color: white;
+    border: 2px solid #FF6D00;
+}
+
+.btn-eliminar-tarea:hover {
+    background-color: transparent;
+    color: #FF6D00;
+}
+
+
+
+#vista-cocina {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 1rem;
+    align-items: center;
+}
+
+#vista-cocina .card {
+    background-color: white;
+    border: 3px solid #75C3FF;
+    border-radius: 20px;
+    min-height: 450px;
+    box-shadow: 8px 8px 0 #FF6D00 !important;
+}
+
+#cocina-progreso {
+    color: #FF6D00 !important;
+    font-size: 1.5rem;
+}
+
+#cocina-paso-actual {
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    font-size: 2rem;
+}
+
+#cocina-paso-actual h2 {
+    color: #FF6D00;
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+#cocina-paso-actual p {
+    max-width: 650px;
+    line-height: 1.6;
+    font-size: 2rem;
+}
+
+
+
+.btn-cocina-anterior,
+.btn-cocina-siguiente {
+    font-size: 1.5rem;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-cocina-anterior {
+    background-color: #75C3FF;
+    border-color: #75C3FF;
+    color: white;
+}
+
+.btn-cocina-anterior:hover {
+    background-color: transparent;
+    color: #75C3FF;
+}
+
+.btn-cocina-siguiente {
+    background-color: #FF6D00;
+    border-color: #FF6D00;
+    color: white;
+}
+
+.btn-cocina-siguiente:hover {
+    background-color: transparent;
+    color: #FF6D00;
+}
+
+
+
+.mi-modal {
+    border: 3px solid #75C3FF;
+    border-radius: 20px;
+    padding: 0;
+    background-color: #FDFCED;
+    box-shadow: 8px 8px 0 #FF6D00;
+    font-size: 1.5rem;
+}
+
+.mi-modal form {
+    padding: 2rem 2.5rem;
+}
+
+.mi-modal h2 {
+    color: #FF6D00;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.mi-modal label {
+    display: block;
+    color: #2F343A;
+    margin-top: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.mi-modal input,
+.mi-modal textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 2px solid #75C3FF;
+    border-radius: 8px;
+    background-color: white;
+    font-family: inherit;
+    font-size: 2rem;
+}
+
+.mi-modal input:focus,
+.mi-modal textarea:focus {
+    outline: none;
+    border-color: #FF6D00;
+}
+
+.mi-modal textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.mi-modal footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 1.5rem;
+}
+
+.mi-modal footer button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-cancelar {
+    background-color: transparent;
+    color: #2F343A;
+    border: 2px solid #2F343A;
+}
+
+.btn-cancelar:hover {
+    background-color: #2F343A;
+    color: white;
+}
+
+.btn-confirmar {
+    background-color: #FF6D00;
+    color: white;
+    border: 2px solid #FF6D00;
+}
+
+.btn-confirmar:hover {
+    background-color: transparent;
+    color: #FF6D00;
+}
+
+
+.consulta,
+.notificacion {
+    padding: 1rem;
+}
+
+
+.footer-coffe{
+    background-color: #75C3FF;
+    color: #2F343A;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 6rem;
+    font-size: 1.5rem;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 576px) {
+
+    body {
+        font-size: 1.2rem;
+    }
+
+    .navbar .nav-link {
+        font-size: 1.4rem;
+    }
+
+    .inicio h2 {
+        font-size: 2rem;
+    }
+
+    .inicio p {
+        font-size: 1.2rem;
+    }
+
+    .tarjeta-receta {
+        min-height: 220px;
+        padding: 1.5rem;
+    }
+
+    .tarjeta-receta h3 {
+        font-size: 2.2rem;
+    }
+
+    .tarjeta-receta button {
+        font-size: 1.2rem;
+    }
+
+    .tarjeta-receta p {
+        font-size: 1.1rem;
+    }
+
+    #vista-detalle {
+        padding: 1.2rem 0.8rem 3rem;
+    }
+
+    #detalle-contenido {
+        padding: 1.5rem;
+        box-shadow: 5px 5px 0 #FF6D00;
+    }
+
+    #detalle-contenido h2 {
+        font-size: 2rem;
+    }
+
+    #detalle-contenido h3 {
+        font-size: 1.5rem;
+    }
+
+    .tarjeta-paso {
+        padding: 1rem;
+    }
+
+    .nombre-tarea {
+        font-size: 1.4rem;
+    }
+
+    .tarjeta-paso p {
+        font-size: 1.3rem;
+    }
+
+    #vista-cocina {
+        min-height: 80vh;
+        padding: 1rem 0.5rem;
+    }
+
+    #vista-cocina .card {
+        width: 100%;
+        min-height: 400px;
+        padding: 1.2rem !important;
+        box-shadow: 5px 5px 0 #FF6D00 !important;
+    }
+
+    #cocina-paso-actual {
+        min-height: 220px;
+        padding: 1rem;
+    }
+
+    #cocina-paso-actual h2 {
+        font-size: 1.8rem;
+    }
+
+    #cocina-paso-actual p {
+        font-size: 1.3rem;
+    }
+
+    .btn-cocina-anterior,
+    .btn-cocina-siguiente {
+        font-size: 1rem;
+        padding: 0.5rem 0.8rem;
+    }
+
+    .mi-modal {
+        width: 90%;
+        max-width: 90%;
+        font-size: 1.2rem;
+    }
+
+    .mi-modal form {
+        padding: 1.5rem;
+    }
+
+    .mi-modal h2 {
+        font-size: 1.7rem;
+    }
+
+    .mi-modal input,
+    .mi-modal textarea {
+        font-size: 1.2rem;
+    }
+
+    .mi-modal footer {
+        flex-wrap: wrap;
+        margin: 1.5rem 0 0;
+    }
+
+    .mi-modal footer button {
+        margin: 0;
+    }
+}

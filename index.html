@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&family=Patrick+Hand+SC&family=Swanky+and+Moo+Moo&display=swap" rel="stylesheet">    
+    <link rel="stylesheet" href="estilos/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"
+        defer></script>
+
+    <script src="scripts/app.js" defer></script>
+</head>
+
+<body>
+
+    <header class="bg-primary border-bottom border-5 border-warning">
+        <h1 class="p-3 text-light d-none">Coffee Lab</h1>
+        <nav class="navbar navbar-expand-lg py-3 px-md-4" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><img class="d-none d-lg-block logo d-inline-block"
+                        src="img/logo.webp" alt="Logo de Coffee Lab" id="logo"><span
+                        class=" d-lg-none h1 py-3 text-light">Coffee Lab</span></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavDropdown">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false" role="button" id="selector-filtros">Filtros</a>
+                                <ul class="dropdown-menu">
+                                    <li><button class="dropdown-item" type="button">Todos</button></li>
+                                    <li><button class="dropdown-item" type="button">Fácil</button></li>
+                                    <li><button class="dropdown-item" type="button">Media</button></li>
+                                    <li><button class="dropdown-item" type="button">Difícil</button></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="#" id="atajo-crear">Nueva creación</a></li>
+                        <li class="nav-item"><button id="instalador" class="nav-link d-none">Instalar</button></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container-fluid">
+
+        <section id="vista-catalogo">
+            <h2 class="d-none" id="filtro-actual"><span class="filtro-label"></span></h2>
+            <div class="text-center inicio" id="tutorial">
+                <h2>Descubri tu próxima taza</h2>
+
+                <p>Explorá recetas de café, prepará tus favoritas y creá nuevas combinaciones.</p>
+                <p>Desde la navegación podés filtrar las recetas según su dificultad o categoría.</p>
+                <p>¿Tenés una receta propia? Al final de la página podés crearla desde cero y agregarla a Coffee Lab.</p>
+            </div>
+            <h2>Mis Recetas</h2>
+            <button class="btn btn-success" id="btn-nueva-receta">+ Nueva Receta</button>
+            <ul id="catalogo" class="row g-4 list-unstyled">
+            </ul>
+        </section>
+
+        <section id="vista-detalle" class="d-none">
+            <button class="btn btn-outline-secondary mb-3" id="btn-volver-catalogo">← Volver al catálogo</button>
+            <div id="detalle-contenido">
+
+            </div>
+        </section>
+
+        <section id="vista-cocina" class="d-none">
+            <div class="card p-4 mx-auto shadow">
+                <div class="d-flex justify-content-between">
+                    <span id="cocina-progreso" class="text-muted fw-bold">Paso 1 de 4</span>
+                    <button class="btn-close" id="btn-salir-cocina" aria-label="Salir"></button>
+                </div>
+                <div id="cocina-paso-actual" class="my-4 text-center">
+
+                </div>
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-secondary btn-lg btn-cocina-anterior" id="btn-paso-anterior">Anterior</button>
+                    <button class="btn btn-primary btn-lg btn-cocina-siguiente" id="btn-paso-siguiente">Siguiente</button>
+                </div>
+            </div>
+
+        </section>
+
+
+
+    </main>
+
+    <footer class="footer-coffe">
+        <p>Santino David Fassi y Camila Denis Gastager - Profesor Corbalan Cristian Ariel - Diseño y Programación Web - Aplicaciones web progresivas</p>
+
+    </footer>
+
+
+</body>
+
+</html>

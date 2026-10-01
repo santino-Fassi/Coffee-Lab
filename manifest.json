@@ -1,0 +1,25 @@
+{
+    "name": "Coffee Lab",
+    "short_name": "Coffee Lab",
+    "description": "Aplicación para descubrir, preparar y crear recetas de café.",
+    "start_url": "/",
+    "scope": "./",
+    "display": "fullscreen",
+    "orientation": "portrait-primary",
+    "theme_color": "#FF6D00",
+    "background_color": "#FDFCED",
+    "lang": "es",
+    "dir": "ltr",
+    "categories": [
+        "food",
+        "lifestyle"
+    ],
+    "icons": [
+        {
+            "src": "img/logo.webp",
+            "sizes": "450x450",
+            "type": "image/webp",
+            "purpose": "any"
+        }
+    ]
+}
