@@ -59,7 +59,7 @@
                 <h2>Descubri tu próxima taza</h2>
 
                 <p>Explorá recetas de café, prepará tus favoritas y creá nuevas combinaciones.</p>
-                <p>Desde la navegación podés filtrar las recetas según su dificultad o categoría.</p>
+                <p>Desde la navegación podés filtrar las recetas según su dificultad.</p>
                 <p>¿Tenés una receta propia? Al final de la página podés crearla desde cero y agregarla a Coffee Lab.</p>
             </div>
             <h2>Mis Recetas</h2>
@@ -79,6 +79,12 @@
             <div class="card p-4 mx-auto shadow">
                 <div class="d-flex justify-content-between">
                     <span id="cocina-progreso" class="text-muted fw-bold">Paso 1 de 4</span>
+                    <div>
+                        <span id="pasos-completados" class="text-success fw-bold">Progreso</span>
+                        <div class="progress" role="progressbar" aria-label="Pasos completados" aria-valuenow="0" aria-valuemin="0" id="progreso-receta">
+                            <div class="progress-bar bg-success" style="width: 50%;"></div>
+                        </div>
+                    </div>
                     <button class="btn-close" id="btn-salir-cocina" aria-label="Salir"></button>
                 </div>
                 <div id="cocina-paso-actual" class="my-4 text-center">
@@ -98,7 +104,6 @@
 
     <footer class="footer-coffe">
         <p>Santino David Fassi y Camila Denis Gastager - Profesor Corbalan Cristian Ariel - Diseño y Programación Web - Aplicaciones web progresivas</p>
-
     </footer>
 
 

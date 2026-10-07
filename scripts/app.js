@@ -1,10 +1,10 @@
 'use strict';
 
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js")
-    .then(() => console.log("ServiceWorker operando"))
-    .catch((error) => console.log(`Error al iniciar el ServiceWorker: ${error}`));
-}
+// if ("serviceWorker" in navigator) {
+//     navigator.serviceWorker.register("./service-worker.js")
+//     .then(() => console.log("ServiceWorker operando"))
+//     .catch((error) => console.log(`Error al iniciar el ServiceWorker: ${error}`));
+// }
 
 class Receta {
     id = 0;
@@ -327,11 +327,28 @@ class Receta {
         }
 
         if (!this.editando && this.tareas.length > 0) {
+            const btnProgreso = document.createElement("button");
+            btnProgreso.className = "btn btn-lg my-3 btn-estado-tarea mx-2";
+            btnProgreso.textContent = "Ver progreso";
+            btnProgreso.addEventListener("click", () => iniciarModoCocina());
+
             const btnComenzar = document.createElement("button");
-            btnComenzar.className = "btn btn-lg btn-success my-3";
+            btnComenzar.className = "btn btn-lg btn-success my-3 mx-2";
             btnComenzar.textContent = "Empezar Receta";
-            btnComenzar.addEventListener("click", () => iniciarModoCocina());
-            contenedor.append(btnComenzar);
+            btnComenzar.addEventListener("click", () => {
+                const respuesta = consulta("Atención", "Empezar la receta borrará tu progreso actual y comenzará desde cero. ¿Desea continuar?")
+                    .then((respuesta) => {
+                        if (respuesta) {
+                            for (const tarea of this.tareas) {
+                                tarea.completado = false;
+                            }
+                            this.verDetalle();
+                            guardarRecetas();
+                            iniciarModoCocina();
+                        }
+                    });
+            });
+            contenedor.append(btnProgreso, btnComenzar);
         }
 
 
@@ -361,7 +378,7 @@ class Receta {
             agregarPasoBtn.className = `btn d-block btn-agregar-paso`;
 
             agregarPasoBtn.addEventListener("click", () => {
-                const tarea = new Tarea(this.obtenerTareaId(), "", "", "");
+                const tarea = new Tarea(this.obtenerTareaId(), "", "", "", false);
                 const resultado = tarea.iniciar()
                     .then((resultado) => {
                         this.agregarTarea(tarea);
@@ -420,18 +437,21 @@ class Tarea {
     nombre = "";
     descripcion = "";
     tip = "";
+    completado = false;
 
-    constructor(id, nombre, descripcion, tip = "") {
+    constructor(id, nombre, descripcion, tip = "", completado = false) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tip = tip;
+        this.completado = completado;
     }
 
     obtenerElementoTarea(modoEdicion) {
         const tarea = document.createElement("div");
         tarea.id = `tarea_${this.id}`;
         tarea.className = "tarjeta-paso";
+        if (this.completado) tarea.classList.add("tarjeta-paso-completada");
 
         const titulo = document.createElement("h4");
         titulo.classList.add("h3", "nombre-tarea");
@@ -739,7 +759,7 @@ function iniciarModoCocina() {
         notificacion("Esta receta no tiene pasos para realizar.", "Intenta llenar la receta con instrucciones para comenzar.");
         return;
     }
-    //recetaSeleccionada = receta;
+
     indicePasoActual = 0;
     limpiarVistaCocina();
     renderizarPasoCocina();
@@ -790,11 +810,28 @@ function renderizarPasoCocina() {
     const tareaActual = recetaSeleccionada.tareas[indicePasoActual];
     const totalPasos = recetaSeleccionada.tareas.length;
 
-    // Actualizar texto de progreso
+    // actualizar texto de progreso
     document.querySelector("#cocina-progreso").textContent = `Paso ${indicePasoActual + 1} de ${totalPasos}`;
+    const actualizarProgreso = () => {
+        const barra = document.querySelector("#progreso-receta");
+        barra.ariaValueMax = totalPasos;
+        const tareasCompletadas = recetaSeleccionada.tareas.reduce((tareasCompletadas, tarea) => {
+            if (tarea.completado) {
+                tareasCompletadas++;
+                return tareasCompletadas;
+            }
+            else {
+                return tareasCompletadas;
+            }
+        }, 0);
+        barra.ariaValueNow = tareasCompletadas;
+        barra.firstElementChild.style = `width: ${tareasCompletadas / totalPasos * 100}%`;
+    };
+
+    actualizarProgreso();
     limpiarVistaCocina();
 
-    // Renderizar paso actual
+    // renderizar paso actual
     const contenedorPaso = document.querySelector("#cocina-paso-actual");
 
     const nombreTarea = document.createElement("h2");
@@ -811,6 +848,31 @@ function renderizarPasoCocina() {
         tip.textContent = `💡Tip: ${tareaActual.tip}`;
         contenedorPaso.append(tip);
     }
+
+    const estadoDiv = document.createElement("div");
+
+    const estadoToggle = document.createElement("input");
+    estadoToggle.type = "checkbox";
+    estadoToggle.className = "form-check-input form-check-inline";
+    estadoToggle.id = "estado-toggle";
+    estadoToggle.checked = tareaActual.completado;
+
+    estadoToggle.addEventListener("click", () => {
+        tareaActual.completado = estadoToggle.checked;
+        actualizarProgreso();
+        const tareaVieja = document.querySelector(`#tarea_${tareaActual.id}`);
+        tareaVieja.replaceWith(tareaActual.obtenerElementoTarea(false));
+        guardarRecetas();
+    });
+
+    const estadoLabel = document.createElement("label");
+    estadoLabel.textContent = "Tarea Completada";
+    estadoLabel.htmlFor = "estado-toggle";
+    estadoLabel.className = "form-label btn btn-lg btn-estado-tarea";
+
+    estadoDiv.append(estadoToggle, estadoLabel);
+
+    contenedorPaso.append(estadoDiv);
 
     // deshabilito boton en el paso 1
     const btnAnterior = document.querySelector("#btn-paso-anterior");
@@ -926,7 +988,7 @@ function cargarRecetas() {
 
         recetas = recetasGuardadas.map(r => {
             const tareasInstanciadas = (r.tareas || []).map(t => {
-                return new Tarea(t.id, t.nombre, t.descripcion, t.tip);
+                return new Tarea(t.id, t.nombre, t.descripcion, t.tip, t.completado);
             });
 
             return new Receta(r.id, r.nombre, r.ingredientes || [], tareasInstanciadas, r.dificultad);
@@ -1270,8 +1332,6 @@ let indicePasoActual = 0;
 
 
 function main() {
-
-    const catalogo = document.querySelector("#catalogo");
 
     cargarRecetas();
     renderizarRecetas(filtroActual);

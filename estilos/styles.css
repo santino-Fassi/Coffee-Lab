@@ -165,7 +165,7 @@ main {
     transition: 0.3s;
 }
 
-.btn-ver-receta {
+.btn-ver-receta, .btn-estado-tarea {
     background-color: #75C3FF;
     color: white;
     border: 2px solid #75C3FF;
@@ -200,7 +200,7 @@ main {
     transition: 0.3s;
 }
 
-#btn-nueva-receta:hover {
+#btn-nueva-receta:hover, .btn-estado-tarea:hover {
     background-color: transparent;
     color: #75C3FF;
     border-color: #75C3FF;
@@ -343,6 +343,13 @@ main {
     box-shadow: 5px 5px 0 #75C3FF;
 }
 
+.tarjeta-paso-completada {
+    border-color: #198754;
+}
+
+.tarjeta-paso-completada:hover {
+    box-shadow: 5px 5px 0 #198754;
+}
 .nombre-tarea {
     color: #FF6D00;
     margin-bottom: 0.7rem;
