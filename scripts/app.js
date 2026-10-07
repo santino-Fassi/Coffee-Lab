@@ -1,10 +1,10 @@
 'use strict';
 
-// if ("serviceWorker" in navigator) {
-//     navigator.serviceWorker.register("./service-worker.js")
-//     .then(() => console.log("ServiceWorker operando"))
-//     .catch((error) => console.log(`Error al iniciar el ServiceWorker: ${error}`));
-// }
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js")
+    .then(() => console.log("ServiceWorker operando"))
+    .catch((error) => console.log(`Error al iniciar el ServiceWorker: ${error}`));
+}
 
 class Receta {
     id = 0;
@@ -450,8 +450,17 @@ class Tarea {
     obtenerElementoTarea(modoEdicion) {
         const tarea = document.createElement("div");
         tarea.id = `tarea_${this.id}`;
-        tarea.className = "tarjeta-paso";
-        if (this.completado) tarea.classList.add("tarjeta-paso-completada");
+        tarea.className = "tarjeta-paso position-relative";
+        if (this.completado) {
+            tarea.classList.add("tarjeta-paso-completada");
+
+            const badge = document.createElement("span");
+            badge.className = "position-absolute top-0 translate-middle p-2 bg-success border border-light rounded-circle text-white";
+            badge.style.left = "10%";
+            badge.style.fontSize = "1rem";
+            badge.textContent = "COMPLETADO";
+            tarea.append(badge);
+        }
 
         const titulo = document.createElement("h4");
         titulo.classList.add("h3", "nombre-tarea");

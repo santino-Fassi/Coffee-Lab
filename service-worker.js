@@ -9,7 +9,10 @@ const PRE_CACHE_RECURSOS = [
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css',
     'https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&family=Patrick+Hand+SC&family=Swanky+and+Moo+Moo&display=swap',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js',
-    'service-worker.js'
+    'service-worker.js',
+    'img/iconos/144x144.webp',
+    'img/iconos/192x192.webp',
+    'img/iconos/512x512.webp'
 ]
 const DIN_CACHE_NOMBRE = "din-cache-v1";
 
@@ -24,6 +27,10 @@ self.addEventListener("install", (evento) => {
             return cache.addAll(PRE_CACHE_RECURSOS);
         })
     );
+});
+
+self.addEventListener("activate", (evento) => {
+    evento.waitUntil(self.clients.claim());
 });
 
 self.addEventListener("fetch", (evento) => {
