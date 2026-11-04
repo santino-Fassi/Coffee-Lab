@@ -90,7 +90,7 @@ main {
     text-align: center;
 }
 
-.inicio h2 {
+.inicio h2, .h2 {
     color: #FF6D00;
     font-size: 3rem;
     margin-bottom: 1.5rem;
@@ -156,13 +156,27 @@ main {
     margin: 1.5rem 0 0;
 }
 
-.tarjeta-receta button {
+.tarjeta-receta button, .tarjeta-receta a {
     padding: 0.6rem 1rem;
     border-radius: 8px;
     font-family: inherit;
     font-size: 1.4rem;
     cursor: pointer;
     transition: 0.3s;
+}
+
+.tarea-facil {
+    background-color: green;
+    color: white;
+}
+
+.tarea-media {
+    background-color: orange;
+}
+
+.tarea-dificil {
+    background-color: red;
+    color: white;
 }
 
 .btn-ver-receta, .btn-estado-tarea {
@@ -368,6 +382,11 @@ main {
     margin-top: 1rem;
 }
 
+.tarea-completada {
+    left: 10%;
+    font-size: 1rem;
+}
+
 .btn-editar-tarea,
 .btn-eliminar-tarea {
     padding: 0.6rem 1rem;
@@ -484,6 +503,7 @@ main {
     background-color: #FDFCED;
     box-shadow: 8px 8px 0 #FF6D00;
     font-size: 1.5rem;
+    margin: auto;
 }
 
 .mi-modal form {
@@ -569,13 +589,29 @@ main {
 }
 
 
-.footer-coffe{
+.footer-coffee{
     background-color: #75C3FF;
     color: #2F343A;
     text-align: center;
     padding: 1rem;
     margin-top: 6rem;
     font-size: 1.5rem;
+}
+
+#btn-salir-cocina {
+    cursor: pointer;
+}
+
+.receta-vacia {
+    background-color: rgba(128, 128, 128, 0.1);
+}
+
+.receta-vacia h3 {
+    line-height: 1.5rem;
+}
+
+.receta-vacia h3 span {
+    font-size: 0.5em;
 }
 
 

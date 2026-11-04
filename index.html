@@ -27,8 +27,8 @@
                         src="img/logo.webp" alt="Logo de Coffee Lab" id="logo"><span
                         class=" d-lg-none h1 py-3 text-light">Coffee Lab</span></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNavDropdown">
-                    <span class="navbar-toggler-icon"></span>
+                    data-bs-target="#navbarNavDropdown" aria-expanded="false" aria-label="Abrir o cerrar el menú de navegación">
+                    <span class="navbar-toggler-icon" aria-hidden="true"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul class="navbar-nav">
@@ -43,7 +43,7 @@
                                 </ul>
                             </div>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="#" id="atajo-crear">Nueva creación</a></li>
+                        <li class="nav-item"><button class="nav-link" href="#" id="atajo-crear">Nueva creación</button></li>
                         <li class="nav-item"><button id="instalador" class="nav-link d-none">Instalar</button></li>
                     </ul>
                 </div>
@@ -54,9 +54,9 @@
     <main class="container-fluid">
 
         <section id="vista-catalogo">
-            <h2 class="d-none" id="filtro-actual"><span class="filtro-label"></span></h2>
+            <p class="d-none h2 text-center" id="filtro-actual"><span class="filtro-label"></span></p>
             <div class="text-center inicio" id="tutorial">
-                <h2>Descubri tu próxima taza</h2>
+                <h2>Descubrí tu próxima taza</h2>
 
                 <p>Explorá recetas de café, prepará tus favoritas y creá nuevas combinaciones.</p>
                 <p>Desde la navegación podés filtrar las recetas según su dificultad.</p>
@@ -69,7 +69,7 @@
         </section>
 
         <section id="vista-detalle" class="d-none">
-            <button class="btn btn-outline-secondary mb-3" id="btn-volver-catalogo">← Volver al catálogo</button>
+            <a class="btn btn-outline-secondary mb-3" id="btn-volver-catalogo">← Volver al catálogo</a>
             <div id="detalle-contenido">
 
             </div>
@@ -85,7 +85,7 @@
                             <div class="progress-bar bg-success" style="width: 50%;"></div>
                         </div>
                     </div>
-                    <button class="btn-close" id="btn-salir-cocina" aria-label="Salir"></button>
+                    <a class="btn-close" id="btn-salir-cocina" aria-label="Salir"></a>
                 </div>
                 <div id="cocina-paso-actual" class="my-4 text-center">
 
@@ -102,7 +102,7 @@
 
     </main>
 
-    <footer class="footer-coffe">
+    <footer class="footer-coffee">
         <p>Santino David Fassi y Camila Denis Gastager - Profesor Corbalan Cristian Ariel - Diseño y Programación Web - Aplicaciones web progresivas</p>
     </footer>
 
