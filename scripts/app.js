@@ -1,10 +1,28 @@
 'use strict';
 
-// if ("serviceWorker" in navigator) {
-//     navigator.serviceWorker.register("./service-worker.js")
-//     .then(() => console.log("ServiceWorker operando"))
-//     .catch((error) => console.log(`Error al iniciar el ServiceWorker: ${error}`));
-// }
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js")
+        .then(() => console.log("ServiceWorker operando"))
+        .catch((error) => console.log(`Error al iniciar el ServiceWorker: ${error}`));
+}
+
+function solicitarPermisoNotificaciones() {
+    if ("Notification" in window) {
+        if (Notification.permission == "default") {
+            Notification.requestPermission().then(permiso => {
+                if (permiso == "granted") {
+                    console.log("Permiso de notificaciones concedido con éxito.");
+                }
+                else if (permiso == "denied") {
+                    console.log("Permiso denegado.");
+                }
+            });
+        }
+    }
+    else {
+        console.log("El navegador no soporta notificaciones");
+    }
+}
 
 class Receta {
     id = 0;
@@ -36,26 +54,29 @@ class Receta {
             dial.className = "mi-modal";
 
             const div = document.createElement("div");
+
             const form = document.createElement("form");
             form.autocomplete = false;
-            const tituloModal = document.createElement("h2");
-            tituloModal.textContent = `Nueva Receta`;
-            form.append(tituloModal);
 
+            const tituloModal = document.createElement("h2");
+            tituloModal.textContent = "Nueva Receta";
+            form.append(tituloModal);
 
             const labelNombre = document.createElement("label");
             labelNombre.textContent = "Nombre:";
+
             const inputNombre = document.createElement("input");
             inputNombre.type = "text";
             inputNombre.required = true;
             inputNombre.placeholder = "Milkshake...";
             inputNombre.id = "inputNombre";
+
             labelNombre.htmlFor = inputNombre.id;
-            form.append(labelNombre);
-            form.append(inputNombre);
+            form.append(labelNombre, inputNombre);
 
             const labelDif = document.createElement("label");
             labelDif.textContent = "Dificultad:";
+
             const inputDif = document.createElement("select");
             inputDif.className = "form-select mt-auto";
             inputDif.required = true;
@@ -82,21 +103,23 @@ class Receta {
             inputDif.append(difPlaceholder, facil, media, dificil);
 
             labelDif.htmlFor = inputDif.id;
-            form.append(labelDif);
-            form.append(inputDif);
-
+            form.append(labelDif, inputDif);
 
             const footer = document.createElement("footer");
+
             const cancelBtn = document.createElement("button");
             cancelBtn.type = "button";
             cancelBtn.textContent = "Cancelar";
             cancelBtn.className = "btn-cancelar";
+
             cancelBtn.addEventListener("click", () => {
                 dial.close();
                 dial.remove();
                 rechazar("Se canceló la acción");
             });
+
             footer.append(cancelBtn);
+
             const GuardarBtn = document.createElement("button");
             GuardarBtn.type = "submit";
             GuardarBtn.textContent = "Añadir Receta";
@@ -110,7 +133,13 @@ class Receta {
                     return;
                 }
 
-                const receta = new Receta(Receta.obtenerRecetaId(), inputNombre.value.trim(), [], [], inputDif.value);
+                const receta = new Receta(
+                    Receta.obtenerRecetaId(),
+                    inputNombre.value.trim(),
+                    [],
+                    [],
+                    inputDif.value
+                );
 
                 dial.close();
                 dial.remove();
@@ -119,9 +148,6 @@ class Receta {
 
             form.append(footer);
             div.append(form);
-
-
-
             dial.append(div);
 
             dial.addEventListener("close", () => dial.remove());
@@ -129,7 +155,6 @@ class Receta {
             document.body.append(dial);
             dial.showModal();
         });
-
     }
 
     obtenerTareaId() {
@@ -140,6 +165,7 @@ class Receta {
     agregarTarea(tarea) {
         this.tareas.push(tarea);
     }
+
     eliminarTarea(idTarea) {
         this.tareas = this.tareas.filter(tarea => tarea.id != idTarea);
     }
@@ -151,47 +177,59 @@ class Receta {
 
         const badgeDif = document.createElement("span");
         badgeDif.className = "position-absolute top-0 start-50 translate-middle p-2 border border-light rounded-circle";
+
         switch (this.dificultad) {
             case DIFICULTADES.facil:
                 badgeDif.classList.add("tarea-facil");
                 break;
+
             case DIFICULTADES.media:
                 badgeDif.classList.add("tarea-media");
                 break;
+
             case DIFICULTADES.dificil:
                 badgeDif.classList.add("tarea-dificil");
                 break;
         }
+
         badgeDif.textContent = this.dificultad.toUpperCase();
         receta.append(badgeDif);
 
         const titulo = document.createElement("h3");
         titulo.textContent = this.nombre;
+
         if (this.tareas.length < 1) {
             const br = document.createElement("br");
+
             const vacio = document.createElement("span");
             vacio.textContent = " (Vacía)";
+
             titulo.append(br, vacio);
         }
+
         receta.append(titulo);
 
         const footer = document.createElement("footer");
+
         const verBtn = document.createElement("a");
         verBtn.textContent = "Ver Receta";
         verBtn.className = "btn-ver-receta btn";
+
         verBtn.addEventListener("click", () => {
             recetaSeleccionada = this;
             this.verDetalle();
             window.scrollTo(window.scrollX, 0);
         });
+
         footer.append(verBtn);
 
         const borrarBtn = document.createElement("button");
         borrarBtn.textContent = "🗑";
         borrarBtn.ariaLabel = "Borrar Receta";
         borrarBtn.className = "btn-borrar-receta";
+
         borrarBtn.addEventListener("click", () => {
-            const respuesta = consulta("Atención", `¿Desea borrar ${this.nombre}?`)
+            consulta("Atención", `¿Desea borrar ${this.nombre}?`)
                 .then((respuesta) => {
                     if (respuesta) {
                         recetas = recetas.filter(receta => receta.id != this.id);
@@ -199,13 +237,12 @@ class Receta {
                         renderizarRecetas(filtroActual);
                     }
                 });
-
         });
+
         footer.append(borrarBtn);
 
         if (this.tareas.length < 1) {
             receta.classList.add("receta-vacia");
-            
         }
 
         receta.append(footer);
@@ -216,8 +253,11 @@ class Receta {
     verDetalle() {
         const capturarDatosFormulario = () => {
             const inputNombre = document.querySelector("#input-nombre");
-            const contenedorInputsIngredientes = document.querySelector("#contenedor-inputs-ingredientes");
+            const contenedorInputsIngredientes = document.querySelector(
+                "#contenedor-inputs-ingredientes"
+            );
             const selectDificultad = document.querySelector("#inputDif");
+
             if (!validarTextoObligatorio(inputNombre)) {
                 return false;
             }
@@ -225,19 +265,24 @@ class Receta {
             this.nombre = inputNombre.value.trim();
             this.dificultad = selectDificultad.value;
 
-            const inputs = contenedorInputsIngredientes.querySelectorAll(".input-ingrediente");
+            const inputs = contenedorInputsIngredientes.querySelectorAll(
+                ".input-ingrediente"
+            );
+
             this.ingredientes = Array.from(inputs)
                 .map(input => input.value.trim())
                 .filter(valor => valor != "");
-            
+
             guardarRecetas();
-            
+
             const elementoViejo = document.querySelector(`#receta_${this.id}`);
             elementoViejo.replaceWith(this.obtenerElementoReceta());
 
             return true;
         };
+
         recetaSeleccionada = this;
+
         const contenedor = document.querySelector("#detalle-contenido");
         contenedor.innerHTML = "";
 
@@ -254,7 +299,6 @@ class Receta {
             inputNombre.required = true;
 
             labelNombre.htmlFor = inputNombre.id;
-
             contenedor.append(labelNombre, inputNombre);
 
             const labelDif = document.createElement("label");
@@ -289,9 +333,7 @@ class Receta {
             inputDif.append(difPlaceholder, facil, media, dificil);
 
             labelDif.htmlFor = inputDif.id;
-
             contenedor.append(labelDif, inputDif);
-
         }
         else {
             const titulo = document.createElement("h2");
@@ -308,35 +350,42 @@ class Receta {
         contenedor.append(tituloIngredientes);
 
         if (this.editando) {
-
             const contenedorInputsIngredientes = document.createElement("div");
             contenedorInputsIngredientes.className = "mb-2";
             contenedorInputsIngredientes.id = "contenedor-inputs-ingredientes";
 
             this.ingredientes.forEach(ingrediente => {
-                contenedorInputsIngredientes.append(this.crearFilaIngrediente(ingrediente));
+                contenedorInputsIngredientes.append(
+                    this.crearFilaIngrediente(ingrediente)
+                );
             });
 
             const btnAgregarIngrediente = document.createElement("button");
             btnAgregarIngrediente.type = "button";
             btnAgregarIngrediente.className = "btn btn-lg btn-agregar-ingrediente";
             btnAgregarIngrediente.textContent = "+ Agregar Ingrediente";
+
             btnAgregarIngrediente.addEventListener("click", () => {
                 const nuevaFila = this.crearFilaIngrediente("");
                 contenedorInputsIngredientes.append(nuevaFila);
                 nuevaFila.querySelector("input").focus();
             });
 
-            contenedor.append(contenedorInputsIngredientes, btnAgregarIngrediente);
+            contenedor.append(
+                contenedorInputsIngredientes,
+                btnAgregarIngrediente
+            );
         }
         else {
             if (this.ingredientes.length > 0) {
                 const listaIngredientes = document.createElement("ul");
+
                 this.ingredientes.forEach(ingrediente => {
                     const li = document.createElement("li");
                     li.textContent = ingrediente;
                     listaIngredientes.append(li);
                 });
+
                 contenedor.append(listaIngredientes);
             }
             else {
@@ -344,13 +393,13 @@ class Receta {
                 notaIngredientes.textContent = "La receta no tiene ningún ingrediente.";
                 contenedor.append(notaIngredientes);
             }
-
         }
 
         if (!this.editando && this.tareas.length > 0) {
             const btnProgreso = document.createElement("a");
             btnProgreso.className = "btn btn-lg my-3 btn-estado-tarea mx-2";
             btnProgreso.textContent = "Ver progreso";
+
             btnProgreso.addEventListener("click", () => {
                 iniciarModoCocina();
                 window.scrollTo(window.scrollX, 0);
@@ -359,13 +408,18 @@ class Receta {
             const btnComenzar = document.createElement("a");
             btnComenzar.className = "btn btn-lg btn-success my-3 mx-2";
             btnComenzar.textContent = "Empezar Receta";
+
             btnComenzar.addEventListener("click", () => {
-                const respuesta = consulta("Atención", "Empezar la receta borrará tu progreso actual y comenzará desde cero. ¿Desea continuar?")
+                consulta(
+                    "Atención",
+                    "Empezar la receta borrará tu progreso actual y comenzará desde cero. ¿Desea continuar?"
+                )
                     .then((respuesta) => {
                         if (respuesta) {
                             for (const tarea of this.tareas) {
                                 tarea.completado = false;
                             }
+
                             this.verDetalle();
                             guardarRecetas();
                             iniciarModoCocina();
@@ -373,9 +427,9 @@ class Receta {
                         }
                     });
             });
+
             contenedor.append(btnProgreso, btnComenzar);
         }
-
 
         const tituloPasos = document.createElement("h3");
         tituloPasos.textContent = "Pasos a seguir";
@@ -385,9 +439,13 @@ class Receta {
             const listaTareas = document.createElement("ul");
             listaTareas.className = "row g-4";
             listaTareas.id = "lista-pasos";
+
             this.tareas.forEach(tarea => {
-                listaTareas.append(tarea.obtenerElementoTarea(this.editando));
+                listaTareas.append(
+                    tarea.obtenerElementoTarea(this.editando)
+                );
             });
+
             contenedor.append(listaTareas);
         }
         else {
@@ -396,20 +454,34 @@ class Receta {
             contenedor.append(notaPasos);
         }
 
-
         if (this.editando) {
             const agregarPasoBtn = document.createElement("button");
             agregarPasoBtn.textContent = "+ Agregar Paso";
-            agregarPasoBtn.className = `btn d-block btn-agregar-paso`;
+            agregarPasoBtn.className = "btn d-block btn-agregar-paso";
 
             agregarPasoBtn.addEventListener("click", () => {
-                if (!validarTextoObligatorio(document.querySelector("#input-nombre"))) {
-                    mostrarInfo("Advertencia", "No puede dejar el nombre de la receta vacío.");
+                if (
+                    !validarTextoObligatorio(
+                        document.querySelector("#input-nombre")
+                    )
+                ) {
+                    mostrarInfo(
+                        "Advertencia",
+                        "No puede dejar el nombre de la receta vacío."
+                    );
                     return;
                 }
-                const tarea = new Tarea(this.obtenerTareaId(), "", "", "", false);
-                const resultado = tarea.iniciar()
-                    .then((resultado) => {
+
+                const tarea = new Tarea(
+                    this.obtenerTareaId(),
+                    "",
+                    "",
+                    "",
+                    false
+                );
+
+                tarea.iniciar()
+                    .then(() => {
                         this.agregarTarea(tarea);
                         capturarDatosFormulario();
                         this.verDetalle();
@@ -423,20 +495,28 @@ class Receta {
         }
 
         const editarBtn = document.createElement("button");
-        editarBtn.textContent = this.editando ? "Guardar Cambios" : "Editar Receta";
-        editarBtn.className = `btn ${this.editando ? "btn-guardar-receta" : "btn-editar-receta"}`;
+        editarBtn.textContent = this.editando
+            ? "Guardar Cambios"
+            : "Editar Receta";
+
+        editarBtn.className = `btn ${this.editando ? "btn-guardar-receta" : "btn-editar-receta"
+            }`;
+
         editarBtn.addEventListener("click", () => {
             if (this.editando && !capturarDatosFormulario()) {
-                mostrarInfo("Advertencia", "No puede dejar el nombre de la receta vacío.");
+                mostrarInfo(
+                    "Advertencia",
+                    "No puede dejar el nombre de la receta vacío."
+                );
                 return;
             }
+
             this.editando = !this.editando;
             this.verDetalle();
             window.scrollTo(window.scrollX, 0);
         });
 
         contenedor.append(editarBtn);
-
         mostrarVista("vista-detalle");
     }
 
@@ -457,12 +537,13 @@ class Receta {
         btnBorrar.className = "btn btn-outline-danger";
         btnBorrar.textContent = "❌";
         btnBorrar.ariaLabel = "Eliminar ingrediente";
+
         btnBorrar.addEventListener("click", () => fila.remove());
+
         fila.append(btnBorrar);
 
         return fila;
     }
-
 }
 
 class Tarea {
@@ -471,19 +552,32 @@ class Tarea {
     descripcion = "";
     tip = "";
     completado = false;
+    minutos = 0;
+    segundos = 0;
 
-    constructor(id, nombre, descripcion, tip = "", completado = false) {
+    constructor(
+        id,
+        nombre,
+        descripcion,
+        tip = "",
+        completado = false,
+        minutos = 0,
+        segundos = 0
+    ) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tip = tip;
         this.completado = completado;
+        this.minutos = minutos;
+        this.segundos = segundos;
     }
 
     obtenerElementoTarea(modoEdicion) {
         const tarea = document.createElement("div");
         tarea.id = `tarea_${this.id}`;
         tarea.className = "tarjeta-paso position-relative";
+
         if (this.completado) {
             tarea.classList.add("tarjeta-paso-completada");
 
@@ -502,6 +596,15 @@ class Tarea {
         descripcion.textContent = this.descripcion;
         tarea.append(descripcion);
 
+        if (this.minutos > 0 || this.segundos > 0) {
+            const tiempo = document.createElement("p");
+            tiempo.className = "fw-bold";
+            tiempo.textContent =
+                `Temporizador: ${String(this.minutos).padStart(2, "0")}:${String(this.segundos).padStart(2, "0")}`;
+
+            tarea.append(tiempo);
+        }
+
         if (this.tip != "") {
             const tip = document.createElement("p");
             tip.textContent = `💡Tip: ${this.tip}`;
@@ -510,22 +613,24 @@ class Tarea {
 
         if (modoEdicion) {
             const footer = document.createElement("footer");
+
             const editBtn = document.createElement("button");
             editBtn.textContent = "Editar";
             editBtn.className = "btn-editar-tarea";
             editBtn.addEventListener("click", () => this.editar());
             footer.append(editBtn);
+
             const borrarBtn = document.createElement("button");
             borrarBtn.textContent = "Eliminar";
             borrarBtn.className = "btn-eliminar-tarea";
             borrarBtn.addEventListener("click", () => this.eliminar());
             footer.append(borrarBtn);
+
             tarea.append(footer);
         }
 
         return tarea;
     }
-
 
     eliminar() {
         const tarea = document.querySelector(`#tarea_${this.id}`);
@@ -542,57 +647,119 @@ class Tarea {
         dial.className = "mi-modal";
 
         const div = document.createElement("div");
-        //div.className = "modal-dialog";
 
         const form = document.createElement("form");
         form.autocomplete = false;
+
         const tituloModal = document.createElement("h2");
         tituloModal.textContent = `Editando: ${this.nombre}`;
         form.append(tituloModal);
 
-
         const labelNombre = document.createElement("label");
         labelNombre.textContent = "Nombre:";
+
         const inputNombre = document.createElement("input");
         inputNombre.type = "text";
         inputNombre.required = true;
         inputNombre.value = this.nombre;
         inputNombre.id = "inputNombre";
+
         labelNombre.htmlFor = inputNombre.id;
-        form.append(labelNombre);
-        form.append(inputNombre);
+        form.append(labelNombre, inputNombre);
 
         const labelDesc = document.createElement("label");
         labelDesc.textContent = "Instrucción:";
+
         const inputDesc = document.createElement("textarea");
         inputDesc.value = this.descripcion;
         inputDesc.required = true;
         inputDesc.id = "inputDesc";
+
         labelDesc.htmlFor = inputDesc.id;
-        form.append(labelDesc);
-        form.append(inputDesc);
+        form.append(labelDesc, inputDesc);
 
         const labelTip = document.createElement("label");
         labelTip.textContent = "Tip (opcional):";
+
         const inputTip = document.createElement("input");
         inputTip.type = "text";
         inputTip.value = this.tip;
         inputTip.id = "inputTip";
-        labelTip.htmlFor = inputTip.id;
-        form.append(labelTip);
-        form.append(inputTip);
 
+        labelTip.htmlFor = inputTip.id;
+        form.append(labelTip, inputTip);
+
+        const campoTiempo = document.createElement("fieldset");
+        campoTiempo.className = "mt-3";
+
+        const leyendaTiempo = document.createElement("legend");
+        leyendaTiempo.textContent = "Temporizador opcional";
+        leyendaTiempo.className = "fs-5";
+
+        const filaTiempo = document.createElement("div");
+        filaTiempo.className = "row g-2";
+
+        const grupoMinutos = document.createElement("div");
+        grupoMinutos.className = "col-6";
+
+        const labelMinutos = document.createElement("label");
+        labelMinutos.textContent = "Minutos:";
+        labelMinutos.htmlFor = "minutos-editar-tarea";
+
+        const inputMinutos = document.createElement("input");
+        inputMinutos.type = "number";
+        inputMinutos.id = labelMinutos.htmlFor;
+        inputMinutos.min = "0";
+        inputMinutos.step = "1";
+        inputMinutos.value = this.minutos;
+        inputMinutos.className = "form-control";
+
+        grupoMinutos.append(labelMinutos, inputMinutos);
+
+        const grupoSegundos = document.createElement("div");
+        grupoSegundos.className = "col-6";
+
+        const labelSegundos = document.createElement("label");
+        labelSegundos.textContent = "Segundos:";
+        labelSegundos.htmlFor = "segundos-editar-tarea";
+
+        const inputSegundos = document.createElement("input");
+        inputSegundos.type = "number";
+        inputSegundos.id = labelSegundos.htmlFor;
+        inputSegundos.min = "0";
+        inputSegundos.max = "59";
+        inputSegundos.step = "1";
+        inputSegundos.value = this.segundos;
+        inputSegundos.className = "form-control";
+
+        grupoSegundos.append(labelSegundos, inputSegundos);
+
+        const ayudaTiempo = document.createElement("p");
+        ayudaTiempo.textContent = "Dejá ambos campos en cero para no usar temporizador.";
+        ayudaTiempo.className = "form-text mb-0";
+        ayudaTiempo.id = "ayuda-tiempo-editar-tarea";
+
+        inputMinutos.setAttribute("aria-describedby", ayudaTiempo.id);
+        inputSegundos.setAttribute("aria-describedby", ayudaTiempo.id);
+
+        filaTiempo.append(grupoMinutos, grupoSegundos);
+        campoTiempo.append(leyendaTiempo, filaTiempo, ayudaTiempo);
+        form.append(campoTiempo);
 
         const footer = document.createElement("footer");
+
         const cancelBtn = document.createElement("button");
         cancelBtn.type = "button";
         cancelBtn.textContent = "Cancelar";
         cancelBtn.className = "btn-cancelar";
+
         cancelBtn.addEventListener("click", () => {
             dial.close();
             dial.remove();
         });
+
         footer.append(cancelBtn);
+
         const guardarBtn = document.createElement("button");
         guardarBtn.type = "submit";
         guardarBtn.textContent = "Guardar Cambios";
@@ -601,9 +768,44 @@ class Tarea {
 
         form.addEventListener("submit", (evento) => {
             evento.preventDefault();
+
             if (!validarTextoObligatorio(inputNombre) || !validarTextoObligatorio(inputDesc)) {
                 return;
             }
+
+            const minutos = inputMinutos.value === "" ? 0 : inputMinutos.valueAsNumber;
+
+            const segundos = inputSegundos.value === "" ? 0 : inputSegundos.valueAsNumber;
+
+            inputMinutos.setCustomValidity("");
+            inputSegundos.setCustomValidity("");
+
+            if (!Number.isSafeInteger(minutos) || minutos < 0) {
+                inputMinutos.setCustomValidity(
+                    "Ingresá una cantidad entera de minutos, igual o mayor que cero."
+                );
+                inputMinutos.reportValidity();
+                return;
+            }
+
+            if (!Number.isInteger(segundos) || segundos < 0 ||segundos > 59) {
+                inputSegundos.setCustomValidity(
+                    "Ingresá una cantidad entera de segundos entre 0 y 59."
+                );
+                inputSegundos.reportValidity();
+                return;
+            }
+
+            if (!Number.isSafeInteger(Date.now() + (minutos * 60 + segundos) * 1000)) {
+                inputMinutos.setCustomValidity(
+                    "La duración ingresada es demasiado larga."
+                );
+                inputMinutos.reportValidity();
+                return;
+            }
+
+            this.minutos = minutos;
+            this.segundos = segundos;
             this.nombre = inputNombre.value.trim();
             this.descripcion = inputDesc.value.trim();
             this.tip = inputTip.value.trim();
@@ -619,9 +821,6 @@ class Tarea {
 
         form.append(footer);
         div.append(form);
-
-
-
         dial.append(div);
 
         dial.addEventListener("close", () => dial.remove());
@@ -636,58 +835,121 @@ class Tarea {
             dial.className = "mi-modal";
 
             const div = document.createElement("div");
-            //div.className = "modal-dialog";
 
             const form = document.createElement("form");
             form.autocomplete = false;
-            const tituloModal = document.createElement("h2");
-            tituloModal.textContent = `Nueva Tarea`;
-            form.append(tituloModal);
 
+            const tituloModal = document.createElement("h2");
+            tituloModal.textContent = "Nueva Tarea";
+            form.append(tituloModal);
 
             const labelNombre = document.createElement("label");
             labelNombre.textContent = "Nombre:";
+
             const inputNombre = document.createElement("input");
             inputNombre.type = "text";
             inputNombre.required = true;
             inputNombre.value = this.nombre;
             inputNombre.id = "inputNombre";
+
             labelNombre.htmlFor = inputNombre.id;
-            form.append(labelNombre);
-            form.append(inputNombre);
+            form.append(labelNombre, inputNombre);
 
             const labelDesc = document.createElement("label");
             labelDesc.textContent = "Instrucción:";
+
             const inputDesc = document.createElement("textarea");
             inputDesc.value = this.descripcion;
             inputDesc.required = true;
             inputDesc.id = "inputDesc";
+
             labelDesc.htmlFor = inputDesc.id;
-            form.append(labelDesc);
-            form.append(inputDesc);
+            form.append(labelDesc, inputDesc);
 
             const labelTip = document.createElement("label");
             labelTip.textContent = "Tip (opcional):";
+
             const inputTip = document.createElement("input");
             inputTip.type = "text";
             inputTip.value = this.tip;
             inputTip.id = "inputTip";
-            labelTip.htmlFor = inputTip.id;
-            form.append(labelTip);
-            form.append(inputTip);
 
+            labelTip.htmlFor = inputTip.id;
+            form.append(labelTip, inputTip);
+
+            const campoTiempo = document.createElement("fieldset");
+            campoTiempo.className = "mt-3";
+
+            const leyendaTiempo = document.createElement("legend");
+            leyendaTiempo.textContent = "Temporizador opcional";
+            leyendaTiempo.className = "fs-5";
+
+            const filaTiempo = document.createElement("div");
+            filaTiempo.className = "row g-2";
+
+            const grupoMinutos = document.createElement("div");
+            grupoMinutos.className = "col-6";
+
+            const labelMinutos = document.createElement("label");
+            labelMinutos.textContent = "Minutos:";
+            labelMinutos.htmlFor = "minutos-crear-tarea";
+
+            const inputMinutos = document.createElement("input");
+            inputMinutos.type = "number";
+            inputMinutos.id = labelMinutos.htmlFor;
+            inputMinutos.min = "0";
+            inputMinutos.step = "1";
+            inputMinutos.value = this.minutos;
+            inputMinutos.className = "form-control";
+
+            grupoMinutos.append(labelMinutos, inputMinutos);
+
+            const grupoSegundos = document.createElement("div");
+            grupoSegundos.className = "col-6";
+
+            const labelSegundos = document.createElement("label");
+            labelSegundos.textContent = "Segundos:";
+            labelSegundos.htmlFor = "segundos-crear-tarea";
+
+            const inputSegundos = document.createElement("input");
+            inputSegundos.type = "number";
+            inputSegundos.id = labelSegundos.htmlFor;
+            inputSegundos.min = "0";
+            inputSegundos.max = "59";
+            inputSegundos.step = "1";
+            inputSegundos.value = this.segundos;
+            inputSegundos.className = "form-control";
+
+            grupoSegundos.append(labelSegundos, inputSegundos);
+
+            const ayudaTiempo = document.createElement("p");
+            ayudaTiempo.textContent =
+                "Dejá ambos campos en cero para no usar temporizador.";
+            ayudaTiempo.className = "form-text mb-0";
+            ayudaTiempo.id = "ayuda-tiempo-crear-tarea";
+
+            inputMinutos.setAttribute("aria-describedby", ayudaTiempo.id);
+            inputSegundos.setAttribute("aria-describedby", ayudaTiempo.id);
+
+            filaTiempo.append(grupoMinutos, grupoSegundos);
+            campoTiempo.append(leyendaTiempo, filaTiempo, ayudaTiempo);
+            form.append(campoTiempo);
 
             const footer = document.createElement("footer");
+
             const cancelBtn = document.createElement("button");
             cancelBtn.type = "button";
             cancelBtn.textContent = "Cancelar";
             cancelBtn.className = "btn-cancelar";
+
             cancelBtn.addEventListener("click", () => {
                 dial.close();
                 dial.remove();
                 rechazar("Se canceló la acción");
             });
+
             footer.append(cancelBtn);
+
             const GuardarBtn = document.createElement("button");
             GuardarBtn.type = "submit";
             GuardarBtn.className = "btn-confirmar";
@@ -701,9 +963,43 @@ class Tarea {
                     return;
                 }
 
+                const minutos = inputMinutos.value === "" ? 0 : inputMinutos.valueAsNumber;
+
+                const segundos = inputSegundos.value === "" ? 0 : inputSegundos.valueAsNumber;
+
+                inputMinutos.setCustomValidity("");
+                inputSegundos.setCustomValidity("");
+
+                if (!Number.isSafeInteger(minutos) || minutos < 0) {
+                    inputMinutos.setCustomValidity(
+                        "Ingresá una cantidad entera de minutos, igual o mayor que cero."
+                    );
+                    inputMinutos.reportValidity();
+                    return;
+                }
+
+                if (!Number.isInteger(segundos) || segundos < 0 || segundos > 59) {
+                    inputSegundos.setCustomValidity(
+                        "Ingresá una cantidad entera de segundos entre 0 y 59."
+                    );
+                    inputSegundos.reportValidity();
+                    return;
+                }
+
+                if (!Number.isSafeInteger(Date.now() + (minutos * 60 + segundos) * 1000)) {
+                    inputMinutos.setCustomValidity(
+                        "La duración ingresada es demasiado larga."
+                    );
+                    inputMinutos.reportValidity();
+                    return;
+                }
+
+                this.minutos = minutos;
+                this.segundos = segundos;
                 this.nombre = inputNombre.value.trim();
                 this.descripcion = inputDesc.value.trim();
                 this.tip = inputTip.value.trim();
+
                 dial.close();
                 dial.remove();
                 resolver("Se creó correctamente");
@@ -711,9 +1007,6 @@ class Tarea {
 
             form.append(footer);
             div.append(form);
-
-
-
             dial.append(div);
 
             dial.addEventListener("close", () => dial.remove());
@@ -721,44 +1014,33 @@ class Tarea {
             document.body.append(dial);
             dial.showModal();
         });
-
     }
-
 }
 
-// listeners botones
+// Controladores de los botones.
 
 document.querySelectorAll(".dropdown-item").forEach(filtro => {
     filtro.addEventListener("click", () => {
-        filtroActual = filtro.textContent == "Todos"? "": filtro.textContent;
+        filtroActual = filtro.textContent == "Todos"
+            ? ""
+            : filtro.textContent;
+
         renderizarRecetas(filtroActual);
     });
 });
 
 document.querySelector("#atajo-crear").addEventListener("click", () => {
+    if (intervaloTemporizador !== null) return;
+
     Receta.crearReceta()
         .then((receta) => {
             recetas.push(receta);
             guardarRecetas();
             renderizarRecetas(filtroActual);
+
             receta.editando = true;
             receta.verDetalle();
-            window.scrollTo(window.scrollX, 0);
-        })
-        .catch((error) => {
-            console.log(error);
-        });
-})
 
-
-document.querySelector("#btn-nueva-receta").addEventListener("click", () => {
-    Receta.crearReceta()
-        .then((receta) => {
-            recetas.push(receta);
-            guardarRecetas();
-            renderizarRecetas(filtroActual);
-            receta.editando = true;
-            receta.verDetalle();
             window.scrollTo(window.scrollX, 0);
         })
         .catch((error) => {
@@ -766,14 +1048,36 @@ document.querySelector("#btn-nueva-receta").addEventListener("click", () => {
         });
 });
 
+document.querySelector("#btn-nueva-receta").addEventListener("click", () => {
+    if (intervaloTemporizador !== null) return;
+
+    Receta.crearReceta()
+        .then((receta) => {
+            recetas.push(receta);
+            guardarRecetas();
+            renderizarRecetas(filtroActual);
+
+            receta.editando = true;
+            receta.verDetalle();
+
+            window.scrollTo(window.scrollX, 0);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+});
 
 document.querySelector("#btn-volver-catalogo").addEventListener("click", () => {
+    if (intervaloTemporizador !== null) return;
+
     recetaSeleccionada.editando = false;
     recetaSeleccionada = null;
     mostrarVista("vista-catalogo");
 });
 
 document.querySelector("#btn-paso-anterior").addEventListener("click", () => {
+    if (intervaloTemporizador !== null) return;
+
     if (indicePasoActual > 0) {
         indicePasoActual--;
         renderizarPasoCocina();
@@ -781,26 +1085,47 @@ document.querySelector("#btn-paso-anterior").addEventListener("click", () => {
 });
 
 document.querySelector("#btn-paso-siguiente").addEventListener("click", () => {
+    if (intervaloTemporizador !== null) return;
+
     const totalPasos = recetaSeleccionada.tareas.length;
+
     if (indicePasoActual < totalPasos - 1) {
         indicePasoActual++;
         renderizarPasoCocina();
-    } else {
-        notificacion("¡Receta completada!", "Toca aceptar para volver al menú principal.")
+    }
+    else {
+        notificacion(
+            "¡Receta completada!",
+            "Tocá aceptar para volver al detalle de la receta."
+        )
             .then(() => {
                 mostrarVista("vista-detalle");
             });
     }
 });
 
-document.querySelector("#btn-salir-cocina").addEventListener("click", () => {
+document.querySelector("#btn-salir-cocina").addEventListener("click", (evento) => {
+    evento.preventDefault();
+
+    if (intervaloTemporizador !== null) return;
+
     mostrarVista("vista-detalle");
 });
 
 function mostrarVista(vistaId) {
-    const vistas = ["vista-catalogo", "vista-detalle", "vista-cocina"];
+    if (intervaloTemporizador !== null && vistaId !== "vista-cocina") {
+        return;
+    }
+
+    const vistas = [
+        "vista-catalogo",
+        "vista-detalle",
+        "vista-cocina"
+    ];
+
     vistas.forEach(id => {
         const elemento = document.getElementById(id);
+
         if (id == vistaId) {
             elemento.classList.remove("d-none");
         }
@@ -811,12 +1136,18 @@ function mostrarVista(vistaId) {
 }
 
 function iniciarModoCocina() {
+    if (intervaloTemporizador !== null) return;
+
     if (!recetaSeleccionada.tareas || recetaSeleccionada.tareas.length == 0) {
-        notificacion("Esta receta no tiene pasos para realizar.", "Intenta llenar la receta con instrucciones para comenzar.");
+        notificacion(
+            "Esta receta no tiene pasos para realizar.",
+            "Intenta llenar la receta con instrucciones para comenzar."
+        );
         return;
     }
 
     indicePasoActual = 0;
+
     limpiarVistaCocina();
     renderizarPasoCocina();
     mostrarVista("vista-cocina");
@@ -826,10 +1157,13 @@ function renderizarRecetas(filtro = "") {
     const selectorFiltros = document.querySelector("#selector-filtros");
     const tutorial = document.querySelector("#tutorial");
     const filtroLabel = document.querySelector("#filtro-actual");
+
     if (filtro != "") {
         tutorial.classList.add("d-none");
+
         filtroLabel.textContent = `Filtro Seleccionado: ${filtroActual}`;
         filtroLabel.classList.remove("d-none");
+
         selectorFiltros.classList.add("active");
     }
     else {
@@ -837,8 +1171,10 @@ function renderizarRecetas(filtro = "") {
         filtroLabel.classList.add("d-none");
         selectorFiltros.classList.remove("active");
     }
+
     const catalogo = document.querySelector("#catalogo");
     catalogo.innerHTML = "";
+
     if (recetas.length > 0) {
         for (const receta of recetas.filter(receta => receta.dificultad == filtro || filtro == "")) {
             const elemento = document.createElement("li");
@@ -849,45 +1185,57 @@ function renderizarRecetas(filtro = "") {
 
         if (catalogo.children.length == 0) {
             const notaFiltro = document.createElement("p");
-            notaFiltro.textContent = "No tenés ninguna receta en esta dificultad.";
+            notaFiltro.textContent =
+                "No tenés ninguna receta en esta dificultad.";
+
             catalogo.append(notaFiltro);
         }
     }
     else {
         const nota = document.createElement("p");
         nota.className = "text-center";
-        nota.textContent = "¡No tienes ninguna receta creada!\nToca el botón de arriba para empezar.";
+        nota.textContent =
+            "¡No tienes ninguna receta creada!\nToca el botón de arriba para empezar.";
+
         catalogo.append(nota);
     }
-
 }
 
 function renderizarPasoCocina() {
     const tareaActual = recetaSeleccionada.tareas[indicePasoActual];
     const totalPasos = recetaSeleccionada.tareas.length;
+    const temporizadorEnMarcha = intervaloTemporizador !== null;
 
-    // actualizar texto de progreso
-    document.querySelector("#cocina-progreso").textContent = `Paso ${indicePasoActual + 1} de ${totalPasos}`;
+    document.querySelector("#estado-temporizador").textContent = "";
+
+    document.querySelector("#cocina-progreso").textContent =
+        `Paso ${indicePasoActual + 1} de ${totalPasos}`;
+
     const actualizarProgreso = () => {
         const barra = document.querySelector("#progreso-receta");
         barra.ariaValueMax = totalPasos;
-        const tareasCompletadas = recetaSeleccionada.tareas.reduce((tareasCompletadas, tarea) => {
-            if (tarea.completado) {
-                tareasCompletadas++;
-                return tareasCompletadas;
-            }
-            else {
-                return tareasCompletadas;
-            }
-        }, 0);
+
+        const tareasCompletadas = recetaSeleccionada.tareas.reduce(
+            (tareasCompletadas, tarea) => {
+                if (tarea.completado) {
+                    tareasCompletadas++;
+                    return tareasCompletadas;
+                }
+                else {
+                    return tareasCompletadas;
+                }
+            },
+            0
+        );
+
         barra.ariaValueNow = tareasCompletadas;
-        barra.firstElementChild.style = `width: ${tareasCompletadas / totalPasos * 100}%`;
+        barra.firstElementChild.style =
+            `width: ${tareasCompletadas / totalPasos * 100}%`;
     };
 
     actualizarProgreso();
     limpiarVistaCocina();
 
-    // renderizar paso actual
     const contenedorPaso = document.querySelector("#cocina-paso-actual");
 
     const nombreTarea = document.createElement("h2");
@@ -905,6 +1253,62 @@ function renderizarPasoCocina() {
         contenedorPaso.append(tip);
     }
 
+    const duracionSegundos =
+        tareaActual.minutos * 60 + tareaActual.segundos;
+
+    if (duracionSegundos > 0) {
+        const bloqueTemporizador = document.createElement("div");
+        bloqueTemporizador.className =
+            "border rounded p-3 my-3 text-center w-100";
+
+        const tituloTemporizador = document.createElement("p");
+        tituloTemporizador.textContent = "Temporizador";
+        tituloTemporizador.className = "fw-bold mb-2";
+
+        const reloj = document.createElement("p");
+        reloj.id = "reloj-temporizador";
+        reloj.className = "h2 font-monospace mb-3";
+
+        const restantes = temporizadorEnMarcha? Math.max(
+                0,
+                Math.ceil((finTemporizador - Date.now()) / 1000)
+            ) : duracionSegundos;
+
+        const minutos = Math.floor(restantes / 60);
+        const segundos = restantes % 60;
+
+        reloj.textContent = `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+
+        const accionesTemporizador = document.createElement("div");
+        accionesTemporizador.className = "d-flex justify-content-center gap-2 flex-wrap";
+
+        const iniciarBtn = document.createElement("button");
+        iniciarBtn.id = "btn-iniciar-temporizador";
+        iniciarBtn.type = "button";
+        iniciarBtn.className = "btn btn-primary";
+        iniciarBtn.textContent = "Iniciar temporizador";
+        iniciarBtn.disabled = temporizadorEnMarcha;
+        iniciarBtn.addEventListener("click", iniciarTemporizador);
+
+        const cancelarBtn = document.createElement("button");
+        cancelarBtn.id = "btn-cancelar-temporizador";
+        cancelarBtn.type = "button";
+        cancelarBtn.className = "btn btn-outline-danger";
+        cancelarBtn.textContent = "Cancelar temporizador";
+        cancelarBtn.disabled = !temporizadorEnMarcha;
+        cancelarBtn.addEventListener("click", cancelarTemporizador);
+
+        accionesTemporizador.append(iniciarBtn, cancelarBtn);
+
+        bloqueTemporizador.append(
+            tituloTemporizador,
+            reloj,
+            accionesTemporizador
+        );
+
+        contenedorPaso.append(bloqueTemporizador);
+    }
+
     const estadoDiv = document.createElement("div");
 
     const estadoToggle = document.createElement("input");
@@ -912,12 +1316,22 @@ function renderizarPasoCocina() {
     estadoToggle.className = "form-check-input form-check-inline";
     estadoToggle.id = "estado-toggle";
     estadoToggle.checked = tareaActual.completado;
+    estadoToggle.disabled = temporizadorEnMarcha;
 
     estadoToggle.addEventListener("click", () => {
+        if (intervaloTemporizador !== null) return;
+
         tareaActual.completado = estadoToggle.checked;
         actualizarProgreso();
-        const tareaVieja = document.querySelector(`#tarea_${tareaActual.id}`);
-        tareaVieja.replaceWith(tareaActual.obtenerElementoTarea(false));
+
+        const tareaVieja = document.querySelector(
+            `#tarea_${tareaActual.id}`
+        );
+
+        tareaVieja.replaceWith(
+            tareaActual.obtenerElementoTarea(false)
+        );
+
         guardarRecetas();
     });
 
@@ -927,22 +1341,98 @@ function renderizarPasoCocina() {
     estadoLabel.className = "form-label btn btn-lg btn-estado-tarea";
 
     estadoDiv.append(estadoToggle, estadoLabel);
-
     contenedorPaso.append(estadoDiv);
 
-    // deshabilito boton en el paso 1
     const btnAnterior = document.querySelector("#btn-paso-anterior");
-    btnAnterior.disabled = (indicePasoActual === 0);
+    btnAnterior.disabled =
+        temporizadorEnMarcha || indicePasoActual === 0;
 
-    // cambio texto en el ultimo paso
     const btnSiguiente = document.querySelector("#btn-paso-siguiente");
+    btnSiguiente.disabled = temporizadorEnMarcha;
+
     if (indicePasoActual === totalPasos - 1) {
         btnSiguiente.textContent = "Finalizar";
         btnSiguiente.className = "btn btn-cocina-siguiente btn-success";
-    } else {
+    }
+    else {
         btnSiguiente.textContent = "Siguiente";
         btnSiguiente.className = "btn btn-cocina-siguiente btn-primary";
     }
+
+    const btnSalir = document.querySelector("#btn-salir-cocina");
+    btnSalir.href = "#vista-detalle";
+    btnSalir.classList.toggle("disabled", temporizadorEnMarcha);
+    btnSalir.setAttribute("aria-disabled", String(temporizadorEnMarcha));
+    btnSalir.tabIndex = temporizadorEnMarcha ? -1 : 0;
+
+    const cabecera = document.querySelector("body > header");
+    cabecera.inert = temporizadorEnMarcha;
+    cabecera.classList.toggle("opacity-50", temporizadorEnMarcha);
+}
+
+function iniciarTemporizador() {
+    if (intervaloTemporizador !== null) return;
+
+    const tareaActual = recetaSeleccionada.tareas[indicePasoActual];
+    const duracion = (tareaActual.minutos * 60 + tareaActual.segundos) * 1000;
+
+    finTemporizador = Date.now() + duracion;
+    intervaloTemporizador = setInterval(actualizarTemporizador, 250);
+
+    renderizarPasoCocina();
+
+    document.querySelector("#estado-temporizador").textContent = "Temporizador en marcha. Cancelalo para habilitar la navegación.";
+
+    document.querySelector("#btn-cancelar-temporizador").focus();
+
+    actualizarTemporizador();
+}
+
+function actualizarTemporizador() {
+    if (intervaloTemporizador === null) return;
+
+    const restantes = Math.max(
+        0,
+        Math.ceil((finTemporizador - Date.now()) / 1000)
+    );
+
+    const minutos = Math.floor(restantes / 60);
+    const segundos = restantes % 60;
+
+    document.querySelector("#reloj-temporizador").textContent =
+        `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+
+    if (restantes === 0) {
+        const cancelarTeniaFoco = document.activeElement == document.querySelector("#btn-cancelar-temporizador");
+
+        clearInterval(intervaloTemporizador);
+        intervaloTemporizador = null;
+        finTemporizador = 0;
+
+        renderizarPasoCocina();
+
+        document.querySelector("#reloj-temporizador").textContent = "00:00";
+
+        document.querySelector("#estado-temporizador").textContent = "¡Tiempo terminado!";
+
+        if (cancelarTeniaFoco) {
+            document.querySelector("#btn-iniciar-temporizador").focus();
+        }
+    }
+}
+
+function cancelarTemporizador() {
+    if (intervaloTemporizador === null) return;
+
+    clearInterval(intervaloTemporizador);
+    intervaloTemporizador = null;
+    finTemporizador = 0;
+
+    renderizarPasoCocina();
+
+    document.querySelector("#estado-temporizador").textContent = "Temporizador cancelado. Podés volver a iniciarlo o continuar.";
+
+    document.querySelector("#btn-iniciar-temporizador").focus();
 }
 
 function limpiarVistaCocina() {
@@ -956,7 +1446,6 @@ function notificacion(titulo, mensaje) {
         dial.ariaLive = "assertive";
 
         const div = document.createElement("div");
-        //div.className = "modal-dialog";
 
         const tituloModal = document.createElement("h2");
         tituloModal.textContent = titulo;
@@ -971,14 +1460,14 @@ function notificacion(titulo, mensaje) {
         const aceptarBtn = document.createElement("button");
         aceptarBtn.textContent = "Aceptar";
         aceptarBtn.className = "btn-confirmar";
+
         aceptarBtn.addEventListener("click", () => {
             dial.close();
             dial.remove();
             ejecutar("OK");
         });
+
         footer.append(aceptarBtn);
-
-
         div.append(footer);
         dial.append(div);
 
@@ -1006,16 +1495,20 @@ function consulta(titulo, mensaje) {
         div.append(texto);
 
         const footer = document.createElement("footer");
+
         const cancelBtn = document.createElement("button");
         cancelBtn.type = "button";
         cancelBtn.textContent = "Cancelar";
         cancelBtn.className = "btn-cancelar";
+
         cancelBtn.addEventListener("click", () => {
             dial.close();
             dial.remove();
             resolver(false);
         });
+
         footer.append(cancelBtn);
+
         const ConfirmarBtn = document.createElement("button");
         ConfirmarBtn.textContent = "Aceptar";
         ConfirmarBtn.className = "btn-confirmar";
@@ -1035,11 +1528,9 @@ function consulta(titulo, mensaje) {
         document.body.append(dial);
         dial.showModal();
     });
-
 }
 
 function mostrarInfo(titulo, texto) {
-
     const contenedor = document.createElement("div");
     contenedor.className = "toast position-fixed bottom-0 end-0 p-3";
     contenedor.role = "alert";
@@ -1067,20 +1558,18 @@ function mostrarInfo(titulo, texto) {
     cuerpo.textContent = texto;
 
     contenedor.append(cuerpo);
-
-
     document.body.append(contenedor);
 
     const info = new bootstrap.Toast(contenedor, {
         autohide: true,
         delay: 3000
     });
+
     info.show();
 
     setTimeout(() => {
         contenedor.remove();
     }, 3000);
-
 }
 
 function guardarRecetas() {
@@ -1095,19 +1584,46 @@ function cargarRecetas() {
 
         recetas = recetasGuardadas.map(r => {
             const tareasInstanciadas = (r.tareas || []).map(t => {
-                return new Tarea(t.id, t.nombre, t.descripcion, t.tip, t.completado);
+                return new Tarea(
+                    t.id,
+                    t.nombre,
+                    t.descripcion,
+                    t.tip,
+                    t.completado,
+                    t.minutos ?? Math.floor((t.duracionSegundos ?? 0) / 60),
+                    t.segundos ?? (t.duracionSegundos ?? 0) % 60
+                );
             });
 
-            return new Receta(r.id, r.nombre, r.ingredientes || [], tareasInstanciadas, r.dificultad);
+            return new Receta(
+                r.id,
+                r.nombre,
+                r.ingredientes || [],
+                tareasInstanciadas,
+                r.dificultad
+            );
         });
 
-        const maxId = recetas.reduce((max, r) => Math.max(max, r.id), -1);
+        const maxId = recetas.reduce(
+            (max, r) => Math.max(max, r.id),
+            -1
+        );
+
         Receta.contadorRecetas = maxId;
     }
     else {
         for (const obj_receta of OBJ_RECETAS) {
-            recetas.push(new Receta(Receta.obtenerRecetaId(), obj_receta.nombre, obj_receta.ingredientes, obj_receta.tareas, obj_receta.dificultad));
+            recetas.push(
+                new Receta(
+                    Receta.obtenerRecetaId(),
+                    obj_receta.nombre,
+                    obj_receta.ingredientes,
+                    obj_receta.tareas,
+                    obj_receta.dificultad
+                )
+            );
         }
+
         guardarRecetas();
     }
 }
@@ -1145,25 +1661,23 @@ window.addEventListener("beforeinstallprompt", (evento) => {
     if (!intento) {
         $instalador.addEventListener("click", () => {
             evento.prompt()
-            .then(resultado => {
-                if (resultado.outcome == "accepted") {
-                    console.log("Instalación satisfactoria");
-                    $instalador.parentElement.className = "d-none";
-                }
-                else {
-                    console.log("Se canceló la instalación");
-                    $instalador.parentElement.remove();
-                }
-            })
+                .then(resultado => {
+                    if (resultado.outcome == "accepted") {
+                        console.log("Instalación satisfactoria");
+                        $instalador.parentElement.className = "d-none";
+                    }
+                    else {
+                        console.log("Se canceló la instalación");
+                        $instalador.parentElement.remove();
+                    }
+                });
         });
+
         intento = true;
     }
 });
 
-
-
 const TEST_TAREAS = [
-
     // CAFÉ CON LECHE
     {
         id: 0,
@@ -1171,28 +1685,24 @@ const TEST_TAREAS = [
         descripcion: "Hacé un espresso y colocá el café en una taza grande.",
         tip: "Usá café recién molido para obtener mejor sabor."
     },
-
     {
         id: 1,
         nombre: "Calentá la leche",
         descripcion: "Calentá aproximadamente 120 ml de leche sin dejar que llegue a hervir.",
         tip: "La leche debe estar caliente, pero no hirviendo."
     },
-
     {
         id: 2,
         nombre: "Agregá la leche",
         descripcion: "Verté lentamente la leche caliente sobre el espresso.",
         tip: "Hacelo de a poco para mezclar bien los sabores."
     },
-
     {
         id: 3,
         nombre: "Serví el café",
         descripcion: "Completá la taza y serví el café con leche inmediatamente.",
         tip: "Podés agregar azúcar si lo preferís más dulce."
     },
-
 
     // CAPPUCCINO
     {
@@ -1201,35 +1711,30 @@ const TEST_TAREAS = [
         descripcion: "Hacé un espresso y colocá el café en una taza para cappuccino.",
         tip: "Un espresso intenso combina muy bien con la leche."
     },
-
     {
         id: 5,
         nombre: "Calentá la leche",
         descripcion: "Calentá aproximadamente 60 ml de leche sin dejar que hierva.",
         tip: "Evitá que la leche hierva para conservar su textura."
     },
-
     {
         id: 6,
         nombre: "Espumá la leche",
         descripcion: "Usá un espumador hasta obtener una espuma cremosa y con burbujas pequeñas.",
         tip: "La espuma debe quedar firme pero suave."
     },
-
     {
         id: 7,
         nombre: "Agregá la leche",
         descripcion: "Verté la leche caliente lentamente sobre el espresso.",
         tip: "Dejá espacio para colocar la espuma."
     },
-
     {
         id: 8,
         nombre: "Añadí la espuma",
         descripcion: "Colocá la espuma de leche por encima hasta completar la taza.",
         tip: "Podés espolvorear un poco de cacao o canela."
     },
-
 
     // CAFÉ IRLANDÉS
     {
@@ -1238,35 +1743,30 @@ const TEST_TAREAS = [
         descripcion: "Hacé aproximadamente 120 ml de café fuerte y colocalo en una taza o vaso resistente al calor.",
         tip: "Un café intenso ayuda a equilibrar el sabor del whisky."
     },
-
     {
         id: 10,
         nombre: "Añadí el azúcar",
         descripcion: "Agregá una cucharadita de azúcar y mezclá hasta que se disuelva.",
         tip: "Podés usar azúcar rubia para un sabor más intenso."
     },
-
     {
         id: 11,
         nombre: "Agregá el whisky",
         descripcion: "Incorporá aproximadamente 30 ml de whisky y mezclá suavemente.",
         tip: "No agregues demasiado whisky para mantener el equilibrio."
     },
-
     {
         id: 12,
         nombre: "Prepará la crema",
         descripcion: "Batí ligeramente la crema de leche hasta que quede espesa pero todavía fluida.",
         tip: "No la batas demasiado: debe poder colocarse sobre el café."
     },
-
     {
         id: 13,
         nombre: "Colocá la crema",
         descripcion: "Verté lentamente la crema sobre la parte posterior de una cuchara para formar una capa sobre el café.",
         tip: "La crema debe quedar flotando sobre el café."
     },
-
 
     // MOCHA
     {
@@ -1275,35 +1775,30 @@ const TEST_TAREAS = [
         descripcion: "Hacé un espresso y colocalo en una taza grande.",
         tip: "Elegí un café de sabor intenso."
     },
-
     {
         id: 15,
         nombre: "Agregá el chocolate",
         descripcion: "Incorporá una cucharada de cacao en polvo o chocolate derretido y mezclá bien con el espresso.",
         tip: "El chocolate amargo combina muy bien con el café."
     },
-
     {
         id: 16,
         nombre: "Calentá la leche",
         descripcion: "Calentá aproximadamente 120 ml de leche sin dejar que hierva.",
         tip: "La leche caliente ayuda a integrar el chocolate."
     },
-
     {
         id: 17,
         nombre: "Agregá la leche",
         descripcion: "Verté lentamente la leche caliente sobre la mezcla de café y chocolate.",
         tip: "Mezclá suavemente para obtener una bebida uniforme."
     },
-
     {
         id: 18,
         nombre: "Decorá el mocha",
         descripcion: "Colocá un poco de espuma de leche o crema batida por encima y decorá con cacao.",
         tip: "No hace falta agregar demasiada crema para disfrutar el sabor del café."
     },
-
 
     // CAFÉ BOMBÓN
     {
@@ -1312,150 +1807,239 @@ const TEST_TAREAS = [
         descripcion: "Hacé un espresso y reservalo caliente.",
         tip: "Un espresso recién preparado permite apreciar mejor las capas."
     },
-
     {
         id: 20,
         nombre: "Agregá la leche condensada",
         descripcion: "Colocá aproximadamente 30 ml de leche condensada en el fondo de un vaso de vidrio.",
         tip: "Usá un vaso transparente para que se vean las diferentes capas."
     },
-
     {
         id: 21,
         nombre: "Añadí el espresso",
         descripcion: "Verté lentamente el espresso sobre la leche condensada.",
         tip: "Verté el café despacio para conservar las capas."
     },
-
     {
         id: 22,
         nombre: "Agregá espuma de leche",
         descripcion: "Colocá una pequeña cantidad de espuma de leche en la parte superior.",
         tip: "Este paso es opcional, pero aporta una textura más cremosa."
     },
-
     {
         id: 23,
         nombre: "Decorá el café",
         descripcion: "Espolvoreá un poco de cacao o canela por encima y serví inmediatamente.",
         tip: "No mezcles antes de servir para conservar el efecto de las capas."
     }
-
 ];
 
-
 const OBJ_RECETAS = [
-
     {
         nombre: "Café con Leche",
-
         ingredientes: [
             "1 espresso",
             "120 ml de leche",
             "Azúcar a gusto"
         ],
-
         tareas: [
-            new Tarea(TEST_TAREAS[0].id, TEST_TAREAS[0].nombre, TEST_TAREAS[0].descripcion, TEST_TAREAS[0].tip),
-            new Tarea(TEST_TAREAS[1].id, TEST_TAREAS[1].nombre, TEST_TAREAS[1].descripcion, TEST_TAREAS[1].tip),
-            new Tarea(TEST_TAREAS[2].id, TEST_TAREAS[2].nombre, TEST_TAREAS[2].descripcion, TEST_TAREAS[2].tip),
-            new Tarea(TEST_TAREAS[3].id, TEST_TAREAS[3].nombre, TEST_TAREAS[3].descripcion, TEST_TAREAS[3].tip)
+            new Tarea(
+                TEST_TAREAS[0].id,
+                TEST_TAREAS[0].nombre,
+                TEST_TAREAS[0].descripcion,
+                TEST_TAREAS[0].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[1].id,
+                TEST_TAREAS[1].nombre,
+                TEST_TAREAS[1].descripcion,
+                TEST_TAREAS[1].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[2].id,
+                TEST_TAREAS[2].nombre,
+                TEST_TAREAS[2].descripcion,
+                TEST_TAREAS[2].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[3].id,
+                TEST_TAREAS[3].nombre,
+                TEST_TAREAS[3].descripcion,
+                TEST_TAREAS[3].tip
+            )
         ],
-
         dificultad: "Fácil"
     },
-
-
     {
         nombre: "Cappuccino",
-
         ingredientes: [
             "1 espresso",
             "60 ml de leche",
             "Cacao o canela a gusto"
         ],
-
         tareas: [
-            new Tarea(TEST_TAREAS[4].id, TEST_TAREAS[4].nombre, TEST_TAREAS[4].descripcion, TEST_TAREAS[4].tip),
-            new Tarea(TEST_TAREAS[5].id, TEST_TAREAS[5].nombre, TEST_TAREAS[5].descripcion, TEST_TAREAS[5].tip),
-            new Tarea(TEST_TAREAS[6].id, TEST_TAREAS[6].nombre, TEST_TAREAS[6].descripcion, TEST_TAREAS[6].tip),
-            new Tarea(TEST_TAREAS[7].id, TEST_TAREAS[7].nombre, TEST_TAREAS[7].descripcion, TEST_TAREAS[7].tip),
-            new Tarea(TEST_TAREAS[8].id, TEST_TAREAS[8].nombre, TEST_TAREAS[8].descripcion, TEST_TAREAS[8].tip)
+            new Tarea(
+                TEST_TAREAS[4].id,
+                TEST_TAREAS[4].nombre,
+                TEST_TAREAS[4].descripcion,
+                TEST_TAREAS[4].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[5].id,
+                TEST_TAREAS[5].nombre,
+                TEST_TAREAS[5].descripcion,
+                TEST_TAREAS[5].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[6].id,
+                TEST_TAREAS[6].nombre,
+                TEST_TAREAS[6].descripcion,
+                TEST_TAREAS[6].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[7].id,
+                TEST_TAREAS[7].nombre,
+                TEST_TAREAS[7].descripcion,
+                TEST_TAREAS[7].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[8].id,
+                TEST_TAREAS[8].nombre,
+                TEST_TAREAS[8].descripcion,
+                TEST_TAREAS[8].tip
+            )
         ],
-
         dificultad: "Media"
     },
-
-
     {
         nombre: "Café Irlandés",
-
         ingredientes: [
             "120 ml de café fuerte",
             "30 ml de whisky",
             "1 cucharadita de azúcar",
             "30 ml de crema de leche"
         ],
-
         tareas: [
-            new Tarea(TEST_TAREAS[9].id, TEST_TAREAS[9].nombre, TEST_TAREAS[9].descripcion, TEST_TAREAS[9].tip),
-            new Tarea(TEST_TAREAS[10].id, TEST_TAREAS[10].nombre, TEST_TAREAS[10].descripcion, TEST_TAREAS[10].tip),
-            new Tarea(TEST_TAREAS[11].id, TEST_TAREAS[11].nombre, TEST_TAREAS[11].descripcion, TEST_TAREAS[11].tip),
-            new Tarea(TEST_TAREAS[12].id, TEST_TAREAS[12].nombre, TEST_TAREAS[12].descripcion, TEST_TAREAS[12].tip),
-            new Tarea(TEST_TAREAS[13].id, TEST_TAREAS[13].nombre, TEST_TAREAS[13].descripcion, TEST_TAREAS[13].tip)
+            new Tarea(
+                TEST_TAREAS[9].id,
+                TEST_TAREAS[9].nombre,
+                TEST_TAREAS[9].descripcion,
+                TEST_TAREAS[9].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[10].id,
+                TEST_TAREAS[10].nombre,
+                TEST_TAREAS[10].descripcion,
+                TEST_TAREAS[10].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[11].id,
+                TEST_TAREAS[11].nombre,
+                TEST_TAREAS[11].descripcion,
+                TEST_TAREAS[11].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[12].id,
+                TEST_TAREAS[12].nombre,
+                TEST_TAREAS[12].descripcion,
+                TEST_TAREAS[12].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[13].id,
+                TEST_TAREAS[13].nombre,
+                TEST_TAREAS[13].descripcion,
+                TEST_TAREAS[13].tip
+            )
         ],
-
         dificultad: "Media"
     },
-
-
     {
         nombre: "Mocha",
-
         ingredientes: [
             "1 espresso",
             "120 ml de leche",
             "1 cucharada de cacao o chocolate",
             "Crema batida a gusto"
         ],
-
         tareas: [
-            new Tarea(TEST_TAREAS[14].id, TEST_TAREAS[14].nombre, TEST_TAREAS[14].descripcion, TEST_TAREAS[14].tip),
-            new Tarea(TEST_TAREAS[15].id, TEST_TAREAS[15].nombre, TEST_TAREAS[15].descripcion, TEST_TAREAS[15].tip),
-            new Tarea(TEST_TAREAS[16].id, TEST_TAREAS[16].nombre, TEST_TAREAS[16].descripcion, TEST_TAREAS[16].tip),
-            new Tarea(TEST_TAREAS[17].id, TEST_TAREAS[17].nombre, TEST_TAREAS[17].descripcion, TEST_TAREAS[17].tip),
-            new Tarea(TEST_TAREAS[18].id, TEST_TAREAS[18].nombre, TEST_TAREAS[18].descripcion, TEST_TAREAS[18].tip)
+            new Tarea(
+                TEST_TAREAS[14].id,
+                TEST_TAREAS[14].nombre,
+                TEST_TAREAS[14].descripcion,
+                TEST_TAREAS[14].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[15].id,
+                TEST_TAREAS[15].nombre,
+                TEST_TAREAS[15].descripcion,
+                TEST_TAREAS[15].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[16].id,
+                TEST_TAREAS[16].nombre,
+                TEST_TAREAS[16].descripcion,
+                TEST_TAREAS[16].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[17].id,
+                TEST_TAREAS[17].nombre,
+                TEST_TAREAS[17].descripcion,
+                TEST_TAREAS[17].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[18].id,
+                TEST_TAREAS[18].nombre,
+                TEST_TAREAS[18].descripcion,
+                TEST_TAREAS[18].tip
+            )
         ],
-
         dificultad: "Difícil"
     },
-
-
     {
         nombre: "Café Bombón",
-
         ingredientes: [
             "1 espresso",
             "30 ml de leche condensada",
             "Espuma de leche a gusto",
             "Cacao o canela"
         ],
-
         tareas: [
-            new Tarea(TEST_TAREAS[19].id, TEST_TAREAS[19].nombre, TEST_TAREAS[19].descripcion, TEST_TAREAS[19].tip),
-            new Tarea(TEST_TAREAS[20].id, TEST_TAREAS[20].nombre, TEST_TAREAS[20].descripcion, TEST_TAREAS[20].tip),
-            new Tarea(TEST_TAREAS[21].id, TEST_TAREAS[21].nombre, TEST_TAREAS[21].descripcion, TEST_TAREAS[21].tip),
-            new Tarea(TEST_TAREAS[22].id, TEST_TAREAS[22].nombre, TEST_TAREAS[22].descripcion, TEST_TAREAS[22].tip),
-            new Tarea(TEST_TAREAS[23].id, TEST_TAREAS[23].nombre, TEST_TAREAS[23].descripcion, TEST_TAREAS[23].tip)
+            new Tarea(
+                TEST_TAREAS[19].id,
+                TEST_TAREAS[19].nombre,
+                TEST_TAREAS[19].descripcion,
+                TEST_TAREAS[19].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[20].id,
+                TEST_TAREAS[20].nombre,
+                TEST_TAREAS[20].descripcion,
+                TEST_TAREAS[20].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[21].id,
+                TEST_TAREAS[21].nombre,
+                TEST_TAREAS[21].descripcion,
+                TEST_TAREAS[21].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[22].id,
+                TEST_TAREAS[22].nombre,
+                TEST_TAREAS[22].descripcion,
+                TEST_TAREAS[22].tip
+            ),
+            new Tarea(
+                TEST_TAREAS[23].id,
+                TEST_TAREAS[23].nombre,
+                TEST_TAREAS[23].descripcion,
+                TEST_TAREAS[23].tip
+            )
         ],
-
         dificultad: "Difícil"
     }
-
 ];
 
-
 const LOCAL_STORAGE_KEY = "recetas";
+
 const DIFICULTADES = {
     facil: "Fácil",
     media: "Media",
@@ -1467,15 +2051,14 @@ let filtroActual = "";
 let recetaSeleccionada = null;
 let indicePasoActual = 0;
 
+// Solo puede existir un temporizador activo.
+let intervaloTemporizador = null;
+let finTemporizador = 0;
 
 function main() {
 
     cargarRecetas();
     renderizarRecetas(filtroActual);
-
 }
-
-
-
 
 main();
