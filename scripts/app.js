@@ -517,6 +517,99 @@ class Receta {
         });
 
         contenedor.append(editarBtn);
+
+        if (!this.editando) {
+            const compartirBtn = document.createElement("button");
+            compartirBtn.type = "button";
+            compartirBtn.textContent = "Compartir";
+            compartirBtn.className = "btn btn-primary";
+
+            compartirBtn.addEventListener("click", () => {
+                if (!navigator.share) {
+                    mostrarInfo(
+                        "Compartir no disponible",
+                        "Tu navegador no permite compartir mediante esta opción."
+                    );
+                    return;
+                }
+
+                let texto = `${this.nombre}\n`;
+                texto += `Dificultad: ${this.dificultad}\n\n`;
+
+                texto += "Ingredientes:\n";
+
+                if (this.ingredientes.length === 0) {
+                    texto += "Sin ingredientes cargados.\n";
+                }
+
+                for (const ingrediente of this.ingredientes) {
+                    texto += `• ${ingrediente}\n`;
+                }
+
+                texto += "\nPasos:\n";
+
+                if (this.tareas.length === 0) {
+                    texto += "Sin pasos cargados.\n";
+                }
+
+                this.tareas.forEach((tarea, indice) => {
+                    texto += `\n${indice + 1}. ${tarea.nombre}\n`;
+                    texto += `${tarea.descripcion}\n`;
+
+                    if (tarea.tip !== "") {
+                        texto += `Consejo: ${tarea.tip}\n`;
+                    }
+
+                    if (tarea.minutos > 0 || tarea.segundos > 0) {
+                        const minutos = String(tarea.minutos).padStart(2, "0");
+                        const segundos = String(tarea.segundos).padStart(2, "0");
+
+                        texto += `Temporizador: ${minutos}:${segundos}\n`;
+                    }
+                });
+
+                const contenido = {
+                    title: this.nombre,
+                    text: texto.trim()
+                };
+
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(contenido.text)
+                        .then(() => {
+                            mostrarInfo(
+                                "Receta copiada",
+                                "La receta también se copió al portapapeles."
+                            );
+                        })
+                        .catch(error => {
+                            console.error(error);
+
+                            mostrarInfo(
+                                "No se pudo copiar",
+                                "No se pudo copiar la receta al portapapeles."
+                            );
+                        });
+                }
+
+                navigator.share(contenido)
+                    .then(() => {
+                        console.log("Solicitud de compartir completada.");
+                    })
+                    .catch(error => {
+                        if (error.name === "AbortError") return;
+
+                        console.error(error);
+
+                        mostrarInfo(
+                            "No se pudo compartir",
+                            "Ocurrió un error al intentar compartir la receta."
+                        );
+                    });
+            });
+
+            contenedor.append(compartirBtn);
+        }
+
         mostrarVista("vista-detalle");
     }
 
