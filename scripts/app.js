@@ -774,7 +774,6 @@ class Tarea {
             }
 
             const minutos = inputMinutos.value === "" ? 0 : inputMinutos.valueAsNumber;
-
             const segundos = inputSegundos.value === "" ? 0 : inputSegundos.valueAsNumber;
 
             inputMinutos.setCustomValidity("");
@@ -788,7 +787,7 @@ class Tarea {
                 return;
             }
 
-            if (!Number.isInteger(segundos) || segundos < 0 ||segundos > 59) {
+            if (!Number.isInteger(segundos) || segundos < 0 || segundos > 59) {
                 inputSegundos.setCustomValidity(
                     "Ingresá una cantidad entera de segundos entre 0 y 59."
                 );
@@ -964,7 +963,6 @@ class Tarea {
                 }
 
                 const minutos = inputMinutos.value === "" ? 0 : inputMinutos.valueAsNumber;
-
                 const segundos = inputSegundos.value === "" ? 0 : inputSegundos.valueAsNumber;
 
                 inputMinutos.setCustomValidity("");
@@ -1269,10 +1267,8 @@ function renderizarPasoCocina() {
         reloj.id = "reloj-temporizador";
         reloj.className = "h2 font-monospace mb-3";
 
-        const restantes = temporizadorEnMarcha? Math.max(
-                0,
-                Math.ceil((finTemporizador - Date.now()) / 1000)
-            ) : duracionSegundos;
+        const restantes = temporizadorEnMarcha
+            ? Math.max(0, Math.ceil((finTemporizador - Date.now()) / 1000)) : duracionSegundos;
 
         const minutos = Math.floor(restantes / 60);
         const segundos = restantes % 60;
@@ -1373,6 +1369,19 @@ function renderizarPasoCocina() {
 function iniciarTemporizador() {
     if (intervaloTemporizador !== null) return;
 
+    solicitarPermisoNotificaciones();
+
+    if ("serviceWorker" in navigator && "Notification" in window && Notification.permission == "granted") {
+        navigator.serviceWorker.ready
+            .then(registro => registro.getNotifications({
+                tag: "temporizador"
+            }))
+            .then(avisos => {
+                avisos.forEach(aviso => aviso.close());
+            })
+            .catch(error => console.log(error));
+    }
+
     const tareaActual = recetaSeleccionada.tareas[indicePasoActual];
     const duracion = (tareaActual.minutos * 60 + tareaActual.segundos) * 1000;
 
@@ -1391,18 +1400,24 @@ function iniciarTemporizador() {
 function actualizarTemporizador() {
     if (intervaloTemporizador === null) return;
 
-    const restantes = Math.max(
-        0,
-        Math.ceil((finTemporizador - Date.now()) / 1000)
-    );
+    const restantes = Math.max(0, Math.ceil((finTemporizador - Date.now()) / 1000));
 
     const minutos = Math.floor(restantes / 60);
     const segundos = restantes % 60;
 
-    document.querySelector("#reloj-temporizador").textContent =
-        `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+    document.querySelector("#reloj-temporizador").textContent = `${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
 
     if (restantes === 0) {
+        const tareaActual = recetaSeleccionada.tareas[indicePasoActual];
+
+        const datosNotificacion = {
+            tipo: "temporizador",
+            recetaId: recetaSeleccionada.id,
+            tareaId: tareaActual.id
+        };
+
+        const descripcion = `${recetaSeleccionada.nombre}: ${tareaActual.nombre}`;
+
         const cancelarTeniaFoco = document.activeElement == document.querySelector("#btn-cancelar-temporizador");
 
         clearInterval(intervaloTemporizador);
@@ -1412,11 +1427,36 @@ function actualizarTemporizador() {
         renderizarPasoCocina();
 
         document.querySelector("#reloj-temporizador").textContent = "00:00";
-
         document.querySelector("#estado-temporizador").textContent = "¡Tiempo terminado!";
 
         if (cancelarTeniaFoco) {
             document.querySelector("#btn-iniciar-temporizador").focus();
+        }
+
+        if ("serviceWorker" in navigator && "Notification" in window && Notification.permission == "granted") {
+            navigator.serviceWorker.ready
+                .then(registro => {
+                    return registro.showNotification("¡Tiempo terminado!", {
+                        body: descripcion,
+                        icon: new URL("img/timer.webp", registro.scope).href,
+                        tag: "temporizador",
+                        data: datosNotificacion,
+                        actions: [
+                            {
+                                action: "completar",
+                                title: "Completar"
+                            }
+                        ]
+                    });
+                })
+                .catch(error => {
+                    console.log(error);
+
+                    mostrarInfo(
+                        "Tiempo terminado",
+                        "No se pudo mostrar la notificación del sistema."
+                    );
+                });
         }
     }
 }
@@ -1430,7 +1470,8 @@ function cancelarTemporizador() {
 
     renderizarPasoCocina();
 
-    document.querySelector("#estado-temporizador").textContent = "Temporizador cancelado. Podés volver a iniciarlo o continuar.";
+    document.querySelector("#estado-temporizador").textContent =
+        "Temporizador cancelado. Podés volver a iniciarlo o continuar.";
 
     document.querySelector("#btn-iniciar-temporizador").focus();
 }
@@ -2055,10 +2096,110 @@ let indicePasoActual = 0;
 let intervaloTemporizador = null;
 let finTemporizador = 0;
 
-function main() {
+function abrirTareaDesdeNotificacion(datos) {
+    if (intervaloTemporizador !== null) {
+        mostrarInfo(
+            "Temporizador en marcha",
+            "Cancelá el temporizador actual antes de abrir otro paso."
+        );
+        return;
+    }
 
     cargarRecetas();
+
+    const receta = recetas.find(receta => receta.id === datos.recetaId);
+
+    if (!receta) {
+        mostrarInfo(
+            "Receta no disponible",
+            "La receta de esta notificación ya no existe."
+        );
+        return;
+    }
+
+    const indice = receta.tareas.findIndex(
+        tarea => tarea.id === datos.tareaId
+    );
+
+    if (indice === -1) {
+        mostrarInfo(
+            "Paso no disponible",
+            "El paso de esta notificación ya no existe."
+        );
+        return;
+    }
+
+    document.querySelectorAll("dialog[open]").forEach(
+        dialogo => dialogo.close()
+    );
+
+    if (datos.completar === true) {
+        receta.tareas[indice].completado = true;
+        guardarRecetas();
+    }
+
+    receta.editando = false;
+    recetaSeleccionada = receta;
+
     renderizarRecetas(filtroActual);
+    receta.verDetalle();
+    window.scrollTo(0, 0);
+
+    if (datos.completar === true && indice === receta.tareas.length - 1) {
+        mostrarInfo(
+            "Paso completado",
+            "Completaste el último paso de la receta."
+        );
+        return;
+    }
+
+    indicePasoActual = datos.completar === true
+        ? indice + 1
+        : indice;
+
+    renderizarPasoCocina();
+    mostrarVista("vista-cocina");
+}
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", evento => {
+        if (evento.data?.tipo === "accion-temporizador") {
+            abrirTareaDesdeNotificacion(evento.data);
+        }
+    });
+}
+
+function main() {
+    cargarRecetas();
+    renderizarRecetas(filtroActual);
+
+    const url = new URL(window.location.href);
+    const recetaId = url.searchParams.get("receta");
+    const tareaId = url.searchParams.get("tarea");
+
+    if (
+        recetaId === null ||
+        tareaId === null ||
+        !url.searchParams.has("completar")
+    ) {
+        return;
+    }
+
+    const completar = url.searchParams.get("completar") === "1";
+
+    url.searchParams.delete("receta");
+    url.searchParams.delete("tarea");
+    url.searchParams.delete("completar");
+
+    window.history.replaceState(window.history.state, "", url.href);
+
+    if (recetaId.trim() === "" || tareaId.trim() === "") return;
+
+    abrirTareaDesdeNotificacion({
+        recetaId: Number(recetaId),
+        tareaId: Number(tareaId),
+        completar
+    });
 }
 
 main();

@@ -57,40 +57,98 @@ const DIN_CACHE_NOMBRE = "din-cache-v1";
 //     }))
 // });
 
-self.addEventListener("push", (evento) => {
-    const datosServicioPush = evento.data.json();
-    
-    const titulo = "Título de la notificación";
+self.addEventListener("install", evento => {
+    evento.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", evento => {
+    evento.waitUntil(self.clients.claim());
+});
+
+self.addEventListener("push", evento => {
+    if (!evento.data) return;
+
+    const datos = evento.data.json();
+
     const opciones = {
-        body: "Texto de la notificación",
-        image: "./img/",
+        body: datos.cuerpo || "El tiempo de este paso terminó.",
+
+        icon: new URL(
+            "img/timer.webp",
+            self.registration.scope
+        ).href,
+
+        tag: "temporizador",
+
         data: {
-            id: "1"
+            tipo: "temporizador",
+            recetaId: datos.recetaId,
+            tareaId: datos.tareaId
         },
+
         actions: [
             {
-                action: "parar-timer",
-                title: "Parar"
+                action: "completar",
+                title: "Completar"
             }
         ]
     };
 
-    evento.waitUntil(self.registration.showNotification(titulo, opciones));
-
+    evento.waitUntil(
+        self.registration.showNotification(
+            datos.titulo || "¡Tiempo terminado!",
+            opciones
+        )
+    );
 });
 
-self.addEventListener("notificationclick", () => {
+self.addEventListener("notificationclick", evento => {
+    const datos = evento.notification.data;
     evento.notification.close();
 
-    const id = evento.notification.data.id;
-    const accion = evento.action;
+    if (!datos || datos.tipo !== "temporizador") return;
 
-    evento.waitUntil(new Promise((resolver) => {
-        if (accion == "parar-timer") { // silenciar timer
-            resolver();
-        }
-        else { // silenciar timer e ir a la tarea
-            resolver();
-        }
-    }));
+    const mensaje = {
+        tipo: "accion-temporizador",
+        recetaId: datos.recetaId,
+        tareaId: datos.tareaId,
+        completar: evento.action === "completar"
+    };
+
+    const destino = new URL("index.html", self.registration.scope);
+    const inicio = new URL("./", self.registration.scope);
+
+    evento.waitUntil(
+        self.clients.matchAll({
+            type: "window",
+            includeUncontrolled: true
+        })
+            .then(ventanas => {
+                const ventana = ventanas.find(ventana => {
+                    const direccion = new URL(ventana.url);
+
+                    return direccion.origin === destino.origin &&
+                        (
+                            direccion.pathname === destino.pathname ||
+                            direccion.pathname === inicio.pathname
+                        );
+                });
+
+                if (ventana) {
+                    ventana.postMessage(mensaje);
+                    return ventana.focus();
+                }
+
+                destino.searchParams.set("receta", mensaje.recetaId);
+                destino.searchParams.set("tarea", mensaje.tareaId);
+
+                destino.searchParams.set(
+                    "completar",
+                    mensaje.completar ? "1" : "0"
+                );
+
+                return self.clients.openWindow(destino.href);
+            })
+            .catch(error => console.log(error))
+    );
 });
