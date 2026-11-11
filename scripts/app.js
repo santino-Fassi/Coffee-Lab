@@ -1187,7 +1187,8 @@ document.querySelector("#btn-paso-siguiente").addEventListener("click", () => {
     else {
         notificacion(
             "¡Receta completada!",
-            "Tocá aceptar para volver al detalle de la receta."
+            "Tocá aceptar para volver al detalle de la receta.",
+            "Éxito"
         )
             .then(() => {
                 mostrarVista("vista-detalle");
@@ -1573,10 +1574,10 @@ function limpiarVistaCocina() {
     document.querySelector("#cocina-paso-actual").innerHTML = "";
 }
 
-function notificacion(titulo, mensaje) {
+function notificacion(titulo, mensaje, estilo = "") {
     return new Promise((ejecutar, error) => {
         const dial = document.createElement("dialog");
-        dial.className = "mi-modal notificacion";
+        dial.className = `mi-modal notificacion ${estilo}`;
         dial.ariaLive = "assertive";
 
         const div = document.createElement("div");

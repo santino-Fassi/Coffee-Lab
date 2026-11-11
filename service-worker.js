@@ -1,4 +1,4 @@
-const PRE_CACHE_NOMBRE = "pre-cache-v2";
+const PRE_CACHE_NOMBRE = "pre-cache-v3";
 const PRE_CACHE_RECURSOS = [
     './',
     'index.html',
@@ -12,50 +12,51 @@ const PRE_CACHE_RECURSOS = [
     'service-worker.js',
     'img/iconos/144x144.webp',
     'img/iconos/192x192.webp',
-    'img/iconos/512x512.webp'
+    'img/iconos/512x512.webp',
+    "img/timer.webp"
 ]
-const DIN_CACHE_NOMBRE = "din-cache-v1";
+const DIN_CACHE_NOMBRE = "din-cache-v2";
 
-// self.addEventListener("install", (evento) => {
-//     self.skipWaiting();
-//     console.log("ServiceWorker se está instalando...");
+self.addEventListener("install", (evento) => {
+    self.skipWaiting();
+    console.log("ServiceWorker se está instalando...");
 
-//     evento.waitUntil(
-//         caches.open(PRE_CACHE_NOMBRE)
-//         .then(cache => {
-//             console.log("Caché abierta es: ", cache);
-//             return cache.addAll(PRE_CACHE_RECURSOS);
-//         })
-//     );
-// });
+    evento.waitUntil(
+        caches.open(PRE_CACHE_NOMBRE)
+        .then(cache => {
+            console.log("Caché abierta es: ", cache);
+            return cache.addAll(PRE_CACHE_RECURSOS);
+        })
+    );
+});
 
-// self.addEventListener("activate", (evento) => {
-//     evento.waitUntil(self.clients.claim());
-// });
+self.addEventListener("activate", (evento) => {
+    evento.waitUntil(self.clients.claim());
+});
 
-// self.addEventListener("fetch", (evento) => {
-//     evento.respondWith(
-//     caches.match(evento.request)
-//     .then((respuestaCache) => {
-//         if (respuestaCache != undefined) {
-//             console.log("El recurso YA estaba en el caché");
-//             return respuestaCache;
-//         }
+self.addEventListener("fetch", (evento) => {
+    evento.respondWith(
+    caches.match(evento.request)
+    .then((respuestaCache) => {
+        if (respuestaCache != undefined) {
+            console.log("El recurso YA estaba en el caché");
+            return respuestaCache;
+        }
 
-//         console.log("El recurso NO estaba en el caché");
-//         return fetch(evento.request)
-//         .then(respuesta => {
-//             if (!respuesta.ok) return respuesta;
+        console.log("El recurso NO estaba en el caché");
+        return fetch(evento.request)
+        .then(respuesta => {
+            if (!respuesta.ok) return respuesta;
 
-//             return caches.open(DIN_CACHE_NOMBRE)
-//             .then(cache => {
-//                 cache.put(evento.request, respuesta.clone());
+            return caches.open(DIN_CACHE_NOMBRE)
+            .then(cache => {
+                cache.put(evento.request, respuesta.clone());
 
-//                 return respuesta;
-//             })
-//         });
-//     }))
-// });
+                return respuesta;
+            })
+        });
+    }))
+});
 
 self.addEventListener("install", evento => {
     evento.waitUntil(self.skipWaiting());
